@@ -1,0 +1,319 @@
+#!/usr/bin/env ruby
+# Snibbets 1.0.0
+
+require 'optparse'
+require 'readline'
+require 'json'
+require 'cgi'
+require 'logger'
+
+$search_path = "/Users/ttscoff/Desktop/Code/snippets"
+
+class String
+  # Are there multiple snippets (indicated by ATX headers)
+  def multiple?
+    return self.scan(/^#+/).length > 1
+  end
+
+  # Is the snippet in this block fenced?
+  def fenced?
+    count = self.scan(/^```/).length
+    return count > 1 && count.even?
+  end
+
+  def rx
+    return ".*" + self.gsub(/\s+/,'.*') + ".*"
+  end
+
+  # remove outside comments, fences, and indentation
+  def clean_code
+    block = self
+
+    # if it's a fenced code block, just discard the fence and everything
+    # outside it
+    if block.fenced?
+      return block.gsub(/(?:^|.*?\n)(`{3,})(\w+)?(.*?)\n\1.*/m) {|m| $3.strip }
+    end
+
+    # assume it's indented code, discard non-indented lines and outdent
+    # the rest
+    indent = nil
+    inblock = false
+    code = []
+    block.split(/\n/).each {|line|
+      if line =~ /^\s*$/ && inblock
+        code.push(line)
+      elsif line =~ /^( {4,}|\t+)/
+        inblock = true
+        indent ||= Regexp.new("^#{$1}")
+        code.push(line.sub(indent,''))
+      else
+        inblock = false
+      end
+    }
+    code.join("\n")
+  end
+
+  # Returns an array of snippets. Single snippets are returned without a
+  # title, multiple snippets get titles from header lines
+  def snippets
+    content = self.dup
+    # If there's only one snippet, just clean it and return
+    unless self.multiple?
+      return [{"title" => "", "code" => content.clean_code.strip}]
+    end
+
+    # Split content by ATX headers. Everything on the line after the #
+    # becomes the title, code is gleaned from text between that and the
+    # next ATX header (or end)
+    sections = []
+    parts = content.split(/^#+/)
+    parts.shift
+
+    parts.each {|p|
+      lines = p.split(/\n/)
+      title = lines.shift.strip.sub(/[.:]$/,'')
+      block = lines.join("\n")
+      code = block.clean_code
+      if code && code.length > 0
+        sections << {
+          'title' => title,
+          'code' => code.strip
+        }
+      end
+    }
+    return sections
+  end
+end
+
+# Generate a numbered menu, items passed must have a title property
+def menu(res,title="Select one")
+  stty_save = `stty -g`.chomp
+  trap('INT') { system('stty', stty_save); exit }
+
+  # Generate a numbered menu, items passed must have a title property('INT') { system('stty', stty_save); exit }
+  counter = 1
+  $stderr.puts
+  res.each do |match|
+    $stderr.printf("%2d) %s\n", counter, match['title'])
+    counter += 1
+  end
+  $stderr.puts
+
+  begin
+    $stderr.printf(title.sub(/:?$/,": "),res.length)
+    while line = Readline.readline("", true)
+      unless line =~ /^[0-9]/
+        system('stty', stty_save) # Restore
+        exit
+      end
+      line = line.to_i
+      if (line > 0 && line <= res.length)
+        return res[line - 1]
+        break
+      else
+        $stderr.puts "Out of range"
+        menu(res,title)
+      end
+    end
+  rescue Interrupt => e
+    system('stty', stty_save)
+    exit
+  end
+end
+
+# Search the snippets directory for query using Spotlight (mdfind)
+def search_spotlight(query,folder,try=0)
+  # First try only search by filenames
+  nameonly = try > 0 ? '' : '-name '
+
+  matches = %x{mdfind -onlyin "#{folder}" #{nameonly}'#{query}'}.strip
+
+  results = []
+  if matches.length > 0
+    lines = matches.split(/\n/)
+    lines.each {|l|
+      results << {
+        'title' => File.basename(l,'.md'),
+        'path' => l
+      }
+    }
+    return results
+  else
+    if try == 0
+      # if no results on the first try, try again searching all text
+      return search_spotlight(query,folder,1)
+    end
+  end
+end
+
+# Search the snippets directory for query using find and grep
+def search(query,folder,try=0)
+  # First try only search by filenames
+
+  if try > 0
+    cmd = %Q{grep -iEl '#{query.rx}' "#{folder}/"*}
+  else
+    cmd = %Q{find "#{folder}" -iregex '#{query.rx}'}
+  end
+
+  matches = %x{#{cmd}}.strip
+
+  results = []
+
+  if matches.length > 0
+    lines = matches.split(/\n/)
+    lines.each {|l|
+      results << {
+        'title' => File.basename(l,'.*'),
+        'path' => l
+      }
+    }
+    return results
+  else
+    if try == 0
+      # if no results on the first try, try again searching all text
+      return search(query,folder,1)
+    else
+      return results
+    end
+  end
+end
+
+
+options = {}
+
+optparse = OptionParser.new do|opts|
+  opts.banner = "Usage: #{File.basename(__FILE__)} [options] query"
+  # opts.on( '-l', '--launchbar', 'Format results for use in LaunchBar') do
+  #   options[:launchbar] = true
+  # end
+  options[:interactive] = true
+  opts.on( '-q', '--quiet', 'Skip menus and display first match') do
+    options[:interactive] = false
+    options[:launchbar] = false
+  end
+  options[:launchbar] = false
+  options[:output] = "raw"
+  opts.on( '-o', '--output FORMAT', 'Output format (launchbar or raw)' ) do |outformat|
+    valid = %w(json launchbar lb raw)
+    if outformat.downcase =~ /(launchbar|lb)/
+      options[:launchbar] = true
+      options[:interactive] = false
+    else
+      options[:output] = outformat.downcase if valid.include?(outformat.downcase)
+    end
+  end
+  options[:source] = $search_path
+  opts.on('-s', '--source FOLDER', 'Snippets folder to search') do |folder|
+    options[:source] = File.expand_path(folder)
+  end
+  opts.on("-h","--help",'Display this screen') do
+    puts optparse
+    Process.exit 0
+  end
+end
+
+optparse.parse!
+
+query = ''
+
+if options[:launchbar]
+  if STDIN.stat.size >0
+    query = STDIN.read.force_encoding('utf-8')
+  else
+    query = ARGV.join(" ")
+  end
+else
+  if ARGV.length
+    query = ARGV.join(" ")
+  end
+end
+
+query = CGI.unescape(query)
+
+if query.strip.empty?
+  puts "No search query"
+  puts optparse
+  Process.exit 1
+end
+
+results = search(query,options[:source])
+
+if options[:launchbar]
+  output = []
+
+  if results.length == 0
+    out = {
+      'title' => "No matching snippets found"
+    }.to_json
+    puts out
+    Process.exit
+  end
+
+  results.each {|result|
+    input = IO.read(result['path'])
+    snippets = input.snippets
+    next if snippets.length == 0
+
+    children = []
+
+    if snippets.length == 1
+      output << {
+        'title' => result['title'],
+        'quickLookURL' => %Q{file://#{result['path']}},
+        'action' => 'copyIt',
+        'actionArgument' => snippets[0]['code'],
+        'label' => 'Copy'
+      }
+      next
+    end
+
+    snippets.each {|s|
+      children << {
+        'title' => s['title'],
+        'quickLookURL' => %Q{file://#{result['path']}},
+        'action' => 'copyIt',
+        'actionArgument' => s['code'],
+        'label' => 'Copy'
+      }
+    }
+
+    output << {
+      'title' => result['title'],
+      'quickLookURL' => %Q{file://#{result['path']}},
+      'children' => children
+    }
+  }
+
+  puts output.to_json
+else
+  if results.length == 0
+    $stderr.puts "No results"
+    Process.exit 0
+  elsif results.length == 1 || !options[:interactive]
+    input = IO.read(results[0]['path'])
+  else
+    answer = menu(results,"Select a file")
+    input = IO.read(answer['path'])
+  end
+
+
+  snippets = input.snippets
+
+  if snippets.length == 0
+    $stderr.puts "No snippets found"
+    Process.exit 0
+  elsif snippets.length == 1 || !options[:interactive]
+    if options[:output] == 'json'
+      $stdout.puts snippets.to_json
+    else
+      snippets.each {|snip|
+        $stdout.puts snip['code']
+      }
+    end
+  elsif snippets.length > 1
+    answer = menu(snippets,"Select snippet")
+    $stdout.puts answer['code']
+  end
+end

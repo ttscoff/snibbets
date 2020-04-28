@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>com.brettterpstra.LaunchBar.action.Snibbets</string>
+	<key>CFBundleName</key>
+	<string>Snibbets</string>
+	<key>LBAbbreviation</key>
+	<string>snib</string>
+	<key>LBDebugLogEnabled</key>
+	<true/>
+	<key>LBDescription</key>
+	<dict>
+		<key>LBAuthor</key>
+		<string>Brett Terpstra</string>
+		<key>LBEmail</key>
+		<string>me@brettterpstra.com</string>
+		<key>LBSummary</key>
+		<string>Search a folder of plain text code snippets and paste results</string>
+		<key>LBTwitter</key>
+		<string>@ttscoff</string>
+		<key>LBWebsiteURL</key>
+		<string></string>
+	</dict>
+	<key>LBScripts</key>
+	<dict>
+		<key>LBDefaultScript</key>
+		<dict>
+			<key>LBAcceptedArgumentTypes</key>
+			<array>
+				<string>string</string>
+			</array>
+			<key>LBKeepWindowActive</key>
+			<true/>
+			<key>LBResultType</key>
+			<string>unknown</string>
+			<key>LBReturnsResult</key>
+			<true/>
+			<key>LBScriptName</key>
+			<string>default.js</string>
+		</dict>
+	</dict>
+	<key>LBTextInputTitle</key>
+	<string>Search snippets</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Brett Terpstra 2019</string>
+</dict>
+</plist>
