@@ -7,7 +7,7 @@ require 'json'
 require 'cgi'
 require 'logger'
 
-$search_path = "/Users/ttscoff/Desktop/Code/snippets"
+$search_path = ENV['SNIBBETS_PATH']
 
 class String
   # Are there multiple snippets (indicated by ATX headers)
