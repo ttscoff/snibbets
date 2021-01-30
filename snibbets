@@ -113,7 +113,7 @@ def menu(res,title="Select one")
         break
       else
         $stderr.puts "Out of range"
-        menu(res,title)
+        return menu(res,title)
       end
     end
   rescue Interrupt => e
