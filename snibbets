@@ -154,7 +154,8 @@ def search(query,folder,try=0)
   if try > 0
     cmd = %Q{grep -iEl '#{query.rx}' "#{folder}/"*}
   else
-    cmd = %Q{find "#{folder}" -iregex '#{query.rx}'}
+    escaped_folder = Regexp.escape(folder)
+    cmd = %Q{find "#{folder}" -iregex '^#{escaped_folder}/#{query.rx}'}
   end
 
   matches = %x{#{cmd}}.strip
@@ -204,7 +205,7 @@ optparse = OptionParser.new do|opts|
       options[:output] = outformat.downcase if valid.include?(outformat.downcase)
     end
   end
-  options[:source] = $search_path
+  options[:source] = File.expand_path($search_path)
   opts.on('-s', '--source FOLDER', 'Snippets folder to search') do |folder|
     options[:source] = File.expand_path(folder)
   end
