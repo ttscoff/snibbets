@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby
-# Snibbets 1.0.0
+# Snibbets 2.0.0
 
 require 'optparse'
 require 'readline'
 require 'json'
 require 'cgi'
-require 'logger'
+require 'shellwords'
 
-$search_path = "/Users/ttscoff/Desktop/Code/snippets"
+$search_path = File.expand_path("~/Desktop/Code/Snippets")
 
 class String
   # Are there multiple snippets (indicated by ATX headers)
@@ -70,145 +70,225 @@ class String
     parts = content.split(/^#+/)
     parts.shift
 
-    parts.each {|p|
+    parts.each do |p|
       lines = p.split(/\n/)
-      title = lines.shift.strip.sub(/[.:]$/,'')
+      title = lines.shift.strip.sub(/[.:]$/, '')
       block = lines.join("\n")
       code = block.clean_code
-      if code && code.length > 0
-        sections << {
-          'title' => title,
-          'code' => code.strip
-        }
-      end
-    }
+      next unless code && !code.empty?
+
+      sections << {
+        'title' => title,
+        'code' => code.strip
+      }
+    end
     return sections
   end
 end
 
+def gum_menu(executable, res, title)
+  options = res.map { |m| m['title'] }
+  puts title
+  selection = `echo #{Shellwords.escape(options.join("\n"))} | #{executable} choose --limit 1`.strip
+  Process.exit 1 if selection.empty?
+
+  res.select { |m| m['title'] =~ /#{selection}/ }[0]
+end
+
+def fzf_menu(executable, res, title)
+  options = res.map { |m| m['title'] }
+  args = [
+    "--height=#{options.count + 2}",
+    %(--prompt="#{title} > "),
+    '-1'
+  ]
+  selection = `echo #{Shellwords.escape(options.join("\n"))} | #{executable} #{args.join(' ')}`.strip
+  Process.exit 1 if selection.empty?
+
+  res.select { |m| m['title'] =~ /#{selection}/ }[0]
+end
+
+def menu(res, title = 'Select one')
+  fzf = `which fzf`.strip
+  return fzf_menu(fzf, res, title) unless fzf.empty?
+
+  gum = `which gum`.strip
+  return gum_menu(gum, res, title) unless gum.empty?
+
+  console_menu(res, title)
+end
+
 # Generate a numbered menu, items passed must have a title property
-def menu(res,title="Select one")
+def console_menu(res, title)
   stty_save = `stty -g`.chomp
-  trap('INT') { system('stty', stty_save); exit }
+
+  trap('INT') do
+    system('stty', stty_save)
+    Process.exit 1
+  end
 
   # Generate a numbered menu, items passed must have a title property('INT') { system('stty', stty_save); exit }
   counter = 1
   $stderr.puts
-  res.each do |match|
-    $stderr.printf("%2d) %s\n", counter, match['title'])
+  res.each do |m|
+    $stderr.printf("%<counter>2d) %<title>s\n", counter: counter, title: m['title'])
     counter += 1
   end
   $stderr.puts
 
   begin
-    $stderr.printf(title.sub(/:?$/,": "),res.length)
-    while line = Readline.readline("", true)
+    $stderr.printf(title.sub(/:?$/, ': '), res.length)
+    while (line = Readline.readline('', true))
       unless line =~ /^[0-9]/
         system('stty', stty_save) # Restore
         exit
       end
       line = line.to_i
-      if (line > 0 && line <= res.length)
-        return res[line - 1]
-        break
-      else
-        $stderr.puts "Out of range"
-        menu(res,title)
-      end
+      return res[line - 1] if line.positive? && line <= res.length
+
+      warn 'Out of range'
+      menu(res, title)
     end
-  rescue Interrupt => e
+  rescue Interrupt
     system('stty', stty_save)
     exit
   end
 end
 
-# Search the snippets directory for query using Spotlight (mdfind)
-def search_spotlight(query,folder,try=0)
-  # First try only search by filenames
-  nameonly = try > 0 ? '' : '-name '
-
-  matches = %x{mdfind -onlyin "#{folder}" #{nameonly}'#{query}'}.strip
-
-  results = []
-  if matches.length > 0
-    lines = matches.split(/\n/)
-    lines.each {|l|
-      results << {
-        'title' => File.basename(l,'.md'),
-        'path' => l
-      }
-    }
-    return results
-  else
-    if try == 0
-      # if no results on the first try, try again searching all text
-      return search_spotlight(query,folder,1)
-    end
-  end
-end
-
 # Search the snippets directory for query using find and grep
-def search(query,folder,try=0)
+def search(query, folder, try = 0)
   # First try only search by filenames
+  # Second try search with grep
+  # Third try search with Spotlight name only
+  # Fourth try search with Spotlight all contents
+  cmd = case try
+        when 0
+          %(find "#{folder}" -iregex '#{query.rx}')
+        when 1
+          %(grep -iEl '#{query.rx}' "#{folder}/"*.md)
+        when 2
+          %(mdfind -onlyin "#{folder}" -name '#{query}' 2>/dev/null)
+        when 3
+          %(mdfind -onlyin "#{folder}" '#{query}' 2>/dev/null)
+        end
 
-  if try > 0
-    cmd = %Q{grep -iEl '#{query.rx}' "#{folder}/"*}
-  else
-    cmd = %Q{find "#{folder}" -iregex '#{query.rx}'}
-  end
-
-  matches = %x{#{cmd}}.strip
+  matches = `#{cmd}`.strip
 
   results = []
 
-  if matches.length > 0
+  if !matches.empty?
     lines = matches.split(/\n/)
-    lines.each {|l|
+    lines.each do |l|
       results << {
-        'title' => File.basename(l,'.*'),
+        'title' => File.basename(l, '.*'),
         'path' => l
       }
-    }
-    return results
+    end
+    results
   else
-    if try == 0
-      # if no results on the first try, try again searching all text
-      return search(query,folder,1)
+    return [] if try > 2
+
+    # if no results on the first try, try again searching all text
+    search(query, folder, try + 1)
+  end
+end
+
+def highlight_pygments(executable, code, syntax, theme)
+  syntax = syntax.empty? ? '-g' : "-l #{syntax}"
+  `echo #{Shellwords.escape(code)} | #{executable} #{syntax}`
+end
+
+def highlight_skylight(executable, code, syntax, theme)
+  return code if syntax.empty?
+
+  `echo #{Shellwords.escape(code)} | #{executable} --syntax #{syntax}`
+end
+
+def highlight(code, filename, theme = 'monokai')
+  syntax = syntax_from_extension(filename)
+
+  skylight = `which skylighting`.strip
+  return highlight_skylight(skylight, code, syntax, theme) unless skylight.empty?
+
+  pygments = `which pygmentize`.strip
+  return highlight_pygments(pygments, code, syntax, theme) unless pygments.empty?
+
+  code
+end
+
+def ext_to_lang(ext)
+  case ext
+  when /^(as|applescript|scpt)$/
+    'applescript'
+  when /^m$/
+    'objective-c'
+  when /^(pl|perl)$/
+    'perl'
+  when /^py$/
+    'python'
+  when /^(js|jq(uery)?|jxa)$/
+    'javascript'
+  when /^rb$/
+    'ruby'
+  when /^cc$/
+    'c'
+  when /^(ba|fi|z|c)?sh$/
+    'bash'
+  when /^pl$/
+    'perl'
+  else
+    if %w[awk sed css sass scss less cpp php c sh swift html erb json xpath sql htaccess].include?(ext)
+      ext
     else
-      return results
+      ''
     end
   end
 end
 
+def syntax_from_extension(filename)
+  ext_to_lang(filename.split(/\./)[1])
+end
 
-options = {}
+options = {
+    interactive: true,
+    launchbar: false,
+    output: 'raw',
+    source: $search_path,
+    highlight: false,
+    all: false
+  }
 
-optparse = OptionParser.new do|opts|
+optparse = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)} [options] query"
-  # opts.on( '-l', '--launchbar', 'Format results for use in LaunchBar') do
-  #   options[:launchbar] = true
-  # end
-  options[:interactive] = true
-  opts.on( '-q', '--quiet', 'Skip menus and display first match') do
+
+  opts.on('-q', '--quiet', 'Skip menus and display first match') do
     options[:interactive] = false
     options[:launchbar] = false
   end
-  options[:launchbar] = false
-  options[:output] = "raw"
-  opts.on( '-o', '--output FORMAT', 'Output format (launchbar or raw)' ) do |outformat|
-    valid = %w(json launchbar lb raw)
+
+  opts.on('-a', '--all', 'If a file contains multiple snippets, output all of them (no menu)') do
+    options[:all] = true
+  end
+
+  opts.on('-o', '--output FORMAT', 'Output format (launchbar or raw)') do |outformat|
+    valid = %w[json launchbar lb raw]
     if outformat.downcase =~ /(launchbar|lb)/
       options[:launchbar] = true
       options[:interactive] = false
-    else
-      options[:output] = outformat.downcase if valid.include?(outformat.downcase)
+    elsif valid.include?(outformat.downcase)
+      options[:output] = outformat.downcase
     end
   end
-  options[:source] = $search_path
+
   opts.on('-s', '--source FOLDER', 'Snippets folder to search') do |folder|
     options[:source] = File.expand_path(folder)
   end
-  opts.on("-h","--help",'Display this screen') do
+
+  opts.on('--highlight', 'Use pygments or skylighting to syntax highlight (if installed)') do
+    options[:highlight] = true
+  end
+
+  opts.on('-h', '--help', 'Display this screen') do
     puts optparse
     Process.exit 0
   end
@@ -219,49 +299,47 @@ optparse.parse!
 query = ''
 
 if options[:launchbar]
-  if STDIN.stat.size >0
-    query = STDIN.read.force_encoding('utf-8')
-  else
-    query = ARGV.join(" ")
-  end
-else
-  if ARGV.length
-    query = ARGV.join(" ")
-  end
+  query = if $stdin.stat.size.positive?
+            $stdin.read.force_encoding('utf-8')
+          else
+            ARGV.join(' ')
+          end
+elsif ARGV.length
+  query = ARGV.join(' ')
 end
 
 query = CGI.unescape(query)
 
 if query.strip.empty?
-  puts "No search query"
+  puts 'No search query'
   puts optparse
   Process.exit 1
 end
 
-results = search(query,options[:source])
+results = search(query, options[:source], 0)
 
 if options[:launchbar]
   output = []
 
-  if results.length == 0
+  if results.empty?
     out = {
-      'title' => "No matching snippets found"
+      'title' => 'No matching snippets found'
     }.to_json
     puts out
     Process.exit
   end
 
-  results.each {|result|
+  results.each do |result|
     input = IO.read(result['path'])
     snippets = input.snippets
-    next if snippets.length == 0
+    next if snippets.empty?
 
     children = []
 
     if snippets.length == 1
       output << {
         'title' => result['title'],
-        'quickLookURL' => %Q{file://#{result['path']}},
+        'path' => result['path'],
         'action' => 'copyIt',
         'actionArgument' => snippets[0]['code'],
         'label' => 'Copy'
@@ -269,10 +347,10 @@ if options[:launchbar]
       next
     end
 
-    snippets.each {|s|
+    snippets.each { |s|
       children << {
         'title' => s['title'],
-        'quickLookURL' => %Q{file://#{result['path']}},
+        'path' => result['path'],
         'action' => 'copyIt',
         'actionArgument' => s['code'],
         'label' => 'Copy'
@@ -281,39 +359,62 @@ if options[:launchbar]
 
     output << {
       'title' => result['title'],
-      'quickLookURL' => %Q{file://#{result['path']}},
+      'path' => result['path'],
       'children' => children
     }
-  }
+  end
 
   puts output.to_json
 else
-  if results.length == 0
-    $stderr.puts "No results"
+  filepath = nil
+  if results.empty?
+    warn 'No results'
     Process.exit 0
   elsif results.length == 1 || !options[:interactive]
-    input = IO.read(results[0]['path'])
+    filepath = results[0]['path']
+    input = IO.read(filepath)
   else
-    answer = menu(results,"Select a file")
-    input = IO.read(answer['path'])
+    answer = menu(results, 'Select a file')
+    filepath = answer['path']
+    input = IO.read(filepath)
   end
-
 
   snippets = input.snippets
 
-  if snippets.length == 0
-    $stderr.puts "No snippets found"
+  if snippets.empty?
+    warn 'No snippets found'
     Process.exit 0
   elsif snippets.length == 1 || !options[:interactive]
     if options[:output] == 'json'
       $stdout.puts snippets.to_json
     else
-      snippets.each {|snip|
-        $stdout.puts snip['code']
-      }
+      snippets.each do |snip|
+        code = snip['code']
+        code = highlight(code, filepath) if options[:highlight]
+        $stdout.puts code
+      end
     end
   elsif snippets.length > 1
-    answer = menu(snippets,"Select snippet")
-    $stdout.puts answer['code']
+    if options[:all]
+      if options[:output] == 'json'
+        $stdout.puts snippets.to_json
+      else
+        snippets.each do |snippet|
+          $stdout.puts snippet['title']
+          $stdout.puts '------'
+          $stdout.puts snippet['code']
+          $stdout.puts
+        end
+      end
+    else
+      answer = menu(snippets, 'Select snippet')
+      if options[:output] == 'json'
+        $stdout.puts answer.to_json
+      else
+        code = answer['code']
+        code = highlight(code, filepath) if options[:highlight]
+        $stdout.puts code
+      end
+    end
   end
 end
