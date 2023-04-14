@@ -560,11 +560,11 @@ def new_snippet_from_clipboard(options)
 
   pb = `pbpaste`.outdent
 
-  printf "What does this snippet do? "
+  printf 'What does this snippet do? '
   input = $stdin.gets.chomp
   title = input unless input.empty?
 
-  printf 'What language(s) is it in (separate with spaces)? '
+  printf 'What language(s) does it use (separate with spaces, full names or file extensions will work)? '
   input = $stdin.gets.chomp
   langs = input.split(/ +/).map(&:strip) unless input.empty?
   exts = langs.map { |lang| lang_to_ext(lang) }
@@ -637,7 +637,6 @@ optparse = OptionParser.new do |opts|
   opts.on('-e', '--edit', 'Open the selected snippet in your configured editor') do
     edit_snippet = true
   end
-
 
   opts.on('-n', '--name-only', 'Only search file names, not content') do
     options[:name_only] = true
