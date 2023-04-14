@@ -43,29 +43,45 @@ CLI: Copy `snibbets` to a location in your `$PATH`.
 
 When you run it the first time, it will write a configuration file to `~/.config/snibbets/snibbets.yml`. You can edit that file (run `snibbets --configure` to open it automatically) to set things like your Snippets directory, your preferred file extension, and a few other options. Options specified in the config file can always be overriden on the command line with flags.
 
+(This will probably become a gem, as I can't fit any more bloat into this single file script that it's grown out of. When that happens, you'll see it in the repo, and I'll talk about it on [brettterpstra.com](https://brettterpstra.com))
+
 
 ### Usage
 
-    $ snibbets -h
     Usage: snibbets [options] query
         -a, --all                        If a file contains multiple snippets, output all of them (no menu)
         -e, --edit                       Open the selected snippet in your configured editor
         -n, --name-only                  Only search file names, not content
         -o, --output FORMAT              Output format (json|launchbar|raw)
+        -p, --paste                      Interactively create a new snippet from clipboard contents (Mac only)
         -q, --quiet                      Skip menus and display first match
         -s, --source FOLDER              Snippets folder to search
             --configure                  Open the configuration file in your default editor
             --highlight                  Use pygments or skylighting to syntax highlight (if installed)
             --save                       Save the current command line options to the YAML configuration
         -h, --help                       Display this screen
+        -v, --version                    Display version information
 
 If your Snippets folder is set in the config, simply running `snibbets [search query]` will perform the search and output the code blocks, presenting a menu if more than one match is found or the target file contains more than one snippet. Selected contents are output raw to STDOUT.
 
 > If you have fzf or gum installed, snibbets will use those for menus, providing fuzzy filtering of options.
 
+#### JSON output
+
 An undocumented output option is `-o json`, which will output all of the matches and their code blocks as a JSON string that can be incorporated into other scripts. It's similar to the `-o launchbar` option, but doesn't contain the extra keys required for the LaunchBar action.
 
+#### Open snippets in your editor
+
 Use the `--edit` flag on any search to open the found snippet file in your editor. Configure your default editor in the config file. `snibbets configure` will open that, but if you don't have an editor set, it might have strange results. To edit manually, open `~/.config/snibbets/snibbets.yml` in your text editor of choice.
+
+#### Creating new snippets
+
+I do most of my snippet editing in nvUltra, but sometimes I have a function in my clipboard that just needs quick saving and there are so few moving parts to creating a snippet that it just feels like they could be automated/simplified. That's why I added the `--paste` flag. If you have a code snippet in your clipboard, you can just run `snibbets --paste` (or just `-p`) and you'll get a prompt asking you to describe the snippet (used for filename) and one asking what language(s) it represents. 
+
+You can input the languages as names, e.g. `rust`, `typescript`, or `scala`, or you can just add file extensions that represent the language. If I say `ts` to that prompt, it will generate an extension of `.ts.md` and then add a metadata tag of `typescript` to the file. The code from the clipboard goes into a fenced code block in the document. You can always go add notes to it later, but it's a great way to save snippets you come across (or solutions you figure out after a week of banging your head).
+
+
+#### Saving settings
 
 Any time you specify things like a source folder with the `--source` flag, or turn on highlighting or name-only search, you can add the flag `--save` to write those to your config and make them the default options.
 
