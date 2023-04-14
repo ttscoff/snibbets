@@ -12,6 +12,10 @@ Snibbets is designed to work with a folder containing Markdown files. Each Markd
 
 I recommend using filenames with multiple extensions (ending with your markdown extension), primarily to define the syntax for a snippet. For example, a css snippet would be `*.css.md`, a ruby snippet would be `*.rb.md`. This can aid in searching and makes it easy to script things like adding language tags automatically.
 
+The name of the file should be the description of the snippet, at least in the case where there's only one snippet in the document. Call it 'javascript url parser.js.md' or similar. If I got the snippet from StackOverflow, I give it a name based on the question I searched to find it. Be descriptive.
+
+You can combine multiple snippets in a file, though. For example, I have a file called 'Ruby hash snippets.rb.md'. That file contains an array of useful snippets, and each one has a descriptive title in an h3 header above it. Those (ATX) headers are used to split the file, and when you search from the command line, you'll get a menu of all of the snippets in the selected file. (And if you have [fzf](https://github.com/junegunn/fzf) or [gum](https://github.com/charmbracelet/gum) installed, you can quickly filter through with fuzzy searching and find exactly what you need.)
+
 If a file contains multiple snippets, they should be separated by ATX-style headers (one or more `#`) describing the snippets. Additional  descriptions can be included outside of the code block. For example:
 
 A file titled `unix find.bash.md`:
@@ -33,7 +37,7 @@ A file titled `unix find.bash.md`:
 
         find /dir/dir -type f -mtime +540 -mtime -720 -printf \"%p\",\"%s\",\"%AD\",|"%TD\"\\n > /dir/dir/output.csv
 
-You can include MultiMarkdown metadata in your snippets, either in a YAML block or just at the top of the file with raw key/value pairs. I mostly use this for adding tags, which are then synced to macOS tags when I save. It makes it easy to search for snippets in nvUltra, and also allows you to do searches like `snibbets tag:javascript url parser` in Snibbets.
+You can include MultiMarkdown metadata in your snippets, either in a YAML block or just at the top of the file with raw key/value pairs. I mostly use this for adding tags, which are then synced to macOS tags when I save. It makes it easy to search for snippets in [nvUltra](https://nvultra.com/), and also allows you to do searches like `snibbets tag:javascript url parser` in Snibbets.
 
 ## CLI
 
