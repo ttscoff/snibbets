@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# Snibbets 2.0.0
+VERSION = '2.0.1'
 
 require 'optparse'
 require 'readline'
@@ -212,7 +212,7 @@ class String
   def snippets
     content = dup.remove_meta
     # If there's only one snippet, just clean it and return
-    return [{ 'title' => '', 'code' => content.clean_code.strip }] unless multiple?
+    # return [{ 'title' => '', 'code' => content.clean_code.strip }] unless multiple?
 
     # Split content by ATX headers. Everything on the line after the #
     # becomes the title, code is gleaned from text between that and the
@@ -227,10 +227,9 @@ class String
       "<block#{counter}>\n"
     end
 
-    sans_blocks = sans_blocks.gsub(/(?mi)^((?:\s{4,}|\t+)\S[\s\S]*?)\n(?=\S|$)/) do
+    sans_blocks = sans_blocks.gsub(/(?mi)^((?:\s{4,}|\t+)\S[\S\s]*?)(?=\n\S|\Z)/) do
       counter += 1
       code = Regexp.last_match(1).split(/\n/)
-      code.shift
 
       code_blocks["block#{counter}"] = code.join("\n").outdent
 
@@ -250,12 +249,12 @@ class String
       parts = sans_blocks.gsub(/\n{2,}/, "\n\n").split(/^#+/)
     end
 
-    parts.shift
+    parts.shift if parts.count > 1
 
     parts.each do |p|
       lines = p.split(/\n/)
 
-      title = lines.shift.strip.sub(/[.:]$/, '')
+      title = lines.count > 1 ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
       block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
 
       code = block.clean_code
@@ -645,6 +644,11 @@ optparse = OptionParser.new do |opts|
 
   opts.on('-h', '--help', 'Display this screen') do
     puts optparse
+    Process.exit 0
+  end
+
+  opts.on('-v', '--version', 'Display version information') do
+    puts "Snibbets v#{VERSION}"
     Process.exit 0
   end
 end
