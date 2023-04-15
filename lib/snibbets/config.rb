@@ -12,6 +12,7 @@ module Snibbets
       highlight: false,
       interactive: true,
       launchbar: false,
+      menus: nil,
       name_only: false,
       output: 'raw',
       source: File.expand_path('~/Dropbox/Snippets')
@@ -21,7 +22,15 @@ module Snibbets
       custom_config = read_config
       @options = DEFAULT_OPTIONS.merge(custom_config)
       @options[:editor] ||= best_editor
+      @options[:menus] ||= best_menu
+
       write_config unless @options.equal?(custom_config)
+    end
+
+    def best_menu
+      return 'fzf' if Which.exist?('fzf')
+      return 'gum' if Which.exist?('gum')
+      'console'
     end
 
     def best_editor

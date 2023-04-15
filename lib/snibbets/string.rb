@@ -28,6 +28,10 @@ module Snibbets
       lines.join("\n")
     end
 
+    def strip_newlines
+      split(/\n/).strip_empty.join("\n")
+    end
+
     # Are there multiple snippets (indicated by ATX headers)
     def multiple?
       gsub(/(`{3,}).*?\n\1/m, '').scan(/^#+/).length > 1
@@ -131,8 +135,10 @@ module Snibbets
 
       parts.shift if parts.count > 1
 
-      parts.each do |p|
-        lines = p.split(/\n/)
+      parts.each do |part|
+        lines = part.split(/\n/).strip_empty
+
+        next if lines.blocks == 0
 
         title = lines.count > 1 ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
         block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
