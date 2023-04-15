@@ -10,6 +10,11 @@ Snibbets allows me to keep code snippets in raw files, not relying on a dedicate
 
 What Snibbets does is simply allow a quick search for a specific snippet that I can either output to the terminal, pipe to my clipboard, or access via LaunchBar (via the included LaunchBar Action). It's basically a wrapper for `find` and `grep` with the ability to separate code blocks from other text in my Markdown files.
 
+<!--GITHUB-->
+![Snibbets in action](https://cdn3.brettterpstra.com/uploads/2023/04/snibbets2.gif)
+<!--END GITHUB-->
+<!--JEKYLL{% gif /uploads/2023/04/snibbets2.gif %}-->
+
 ## Collecting Snippets
 
 Snibbets is designed to work with a folder containing Markdown files. Each Markdown file can have somewhat flexible formatting, as long as there's at least one code block (either indented by 4 spaces/1 tab or fenced with backticks).

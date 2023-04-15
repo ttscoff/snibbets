@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.metadata["github_repo"] = "git@github.com:ttscoff/snibbets.git"
 
   spec.require_paths << 'lib'
-  spec.extra_rdoc_files = ['README.md','snibbets.rdoc']
+  spec.extra_rdoc_files = ['README.md']
   spec.rdoc_options << '--title' << 'na' << '--main' << 'README.md' << '--markup' << 'markdown'
 
   spec.bindir = "bin"
@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "gem-release", "~> 2.2"
   spec.add_development_dependency "parse_gemspec-cli", "~> 1.0"
   spec.add_development_dependency "rake", "~> 13.0"
+  spec.add_development_dependency 'rdoc', '~> 4.3'
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "simplecov", "~> 0.21"
   spec.add_development_dependency "simplecov-console", "~> 0.9"

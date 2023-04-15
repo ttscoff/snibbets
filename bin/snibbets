@@ -357,6 +357,8 @@ module Snibbets
         end
 
         opts.on('-h', '--help', 'Display this screen') do
+          puts "Snibbets v#{VERSION}"
+          puts
           puts optparse
           Process.exit 0
         end
