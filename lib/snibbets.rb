@@ -36,14 +36,14 @@ module Snibbets
   class << self
     # Search the snippets directory for query using find and grep
     def search(try: 0)
-      folder = Snibbets.options[:source]
+      folder = File.expand_path(Snibbets.options[:source])
       # start by doing a spotlight search, if that fails, start trying:
       # First try only search by filenames
       # Second try search with grep
       ext = Snibbets.options[:extension] || 'md'
       cmd = case try
             when 1
-              %(find "#{folder}" -iregex '#{@query.rx}' -name '*.#{ext}')
+              %(find "#{folder}" -iregex '^#{Regexp.escape(folder)}/#{@query.rx}' -name '*.#{ext}')
             when 2
               rg = TTY::Which.which('rg')
               ag = TTY::Which.which('ag')
@@ -155,7 +155,7 @@ module Snibbets
 
       filename ="#{title}.#{exts.join('.')}.#{Snibbets.options[:extension]}"
 
-      File.open(File.join(Snibbets.options[:source], filename), 'w') do |f|
+      File.open(File.join(File.expand_path(Snibbets.options[:source]), filename), 'w') do |f|
         f.puts "tags: #{tags.join(', ')}
 
     ```
