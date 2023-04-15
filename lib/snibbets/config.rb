@@ -28,8 +28,8 @@ module Snibbets
     end
 
     def best_menu
-      return 'fzf' if Which.exist?('fzf')
-      return 'gum' if Which.exist?('gum')
+      return 'fzf' if TTY::Which.exist?('fzf')
+      return 'gum' if TTY::Which.exist?('gum')
       'console'
     end
 

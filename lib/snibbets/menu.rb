@@ -113,7 +113,7 @@ module Snibbets
             return res[line - 1] if line.positive? && line <= res.length
 
             warn 'Out of range'
-            console_menu(res, title)
+            return console_menu(res, title, filename, query: query)
           end
         rescue Interrupt
           system('stty', stty_save)
