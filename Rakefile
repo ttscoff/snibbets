@@ -21,7 +21,11 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 
 task default: %i[test]
-task :package => :build
+
+desc 'Alias for build (so it shows up in rake -T)'
+task :package do
+  Rake::Task['build'].invoke
+end
 
 task test: "spec"
 task lint: "standard"
