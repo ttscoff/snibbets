@@ -1,12 +1,19 @@
-require "bundler/gem_tasks"
-require "rspec/core/rake_task"
+require 'bundler/gem_tasks'
+require 'rspec/core/rake_task'
 require 'rdoc/task'
-require "standard/rake"
+require 'standard/rake'
+require 'yard'
 
 Rake::RDocTask.new do |rd|
   rd.main = "README.rdoc"
   rd.rdoc_files.include("README.rdoc", "lib/**/*.rb", "bin/**/*")
   rd.title = 'Snibbets'
+end
+
+YARD::Rake::YardocTask.new do |t|
+ t.files = ['lib/na/*.rb']
+ t.options = ['--markup-provider=redcarpet', '--markup=markdown', '--no-private', '-p', 'yard_templates']
+ # t.stats_options = ['--list-undoc']
 end
 
 RSpec::Core::RakeTask.new(:spec) do |t|
