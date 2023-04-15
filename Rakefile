@@ -21,6 +21,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 
 task default: %i[test]
+task :package => :build
 
 task test: "spec"
 task lint: "standard"
