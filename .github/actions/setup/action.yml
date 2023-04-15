@@ -1,0 +1,34 @@
+---
+name: Setup
+description: Setup Ruby and install dependencies.
+
+inputs:
+  ruby_version:
+    description: The Ruby version.
+    required: false
+    default: '3.2.0'
+  install_dependencies:
+    description: Install dependencies.
+    required: false
+    default: 'true'
+  gem_credentials:
+    description: Gem credentials.
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Setup credentials
+      if: inputs.gem_credentials
+      shell: bash
+      run: |
+        mkdir -p ~/.gem
+        echo "$GEM_CREDENTIALS" > ~/.gem/credentials
+        chmod 600 ~/.gem/credentials
+      env:
+        GEM_CREDENTIALS: ${{ inputs.gem_credentials }}
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: ${{ inputs.install_dependencies == 'true' }}
+        ruby-version: ${{ inputs.ruby_version }}

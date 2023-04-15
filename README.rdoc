@@ -1,0 +1,6 @@
+= Snibbets
+
+A command line tool for managing a code snippet collection in plain text (Markdown).
+
+
+
