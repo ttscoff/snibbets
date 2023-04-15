@@ -1,0 +1,47 @@
+---
+name: _publish
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        description: The artifact name.
+        type: string
+        required: true
+      registry_key:
+        description: The gem registry credentials key.
+        type: string
+        required: true
+      registry_host:
+        description: The gem registry host.
+        type: string
+        required: true
+    secrets:
+      registry_credentials:
+        description: The gem registry credentials.
+        required: true
+
+jobs:
+  publish:
+    name: Publish gem
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          install_dependencies: 'false'
+          gem_credentials: ':${{ inputs.registry_key }}: ${{ secrets.registry_credentials }}'
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: pkg/
+      - name: Publish
+        run: gem push --key $REGISTRY_KEY --host $REGISTRY_HOST $GEM_ARTIFACTS/*
+        env:
+          REGISTRY_KEY: ${{ inputs.registry_key }}
+          REGISTRY_HOST: ${{ inputs.registry_host }}
+          GEM_ARTIFACTS: pkg

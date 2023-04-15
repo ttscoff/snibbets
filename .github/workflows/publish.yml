@@ -1,0 +1,56 @@
+---
+name: Publish
+
+run-name: Publish ${{ github.ref_name }}
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/_build.yml
+  release:
+    name: GitHub Releases
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: pkg/
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(github.ref_name, 'pre') }}
+          files: pkg/*
+  rubygems:
+    name: RubyGems.org
+    uses: ./.github/workflows/_publish.yml
+    needs: build
+    with:
+      artifact_name: ${{ needs.build.outputs.artifact_name }}
+      registry_key: rubygems
+      registry_host: https://rubygems.org
+    secrets:
+       registry_credentials: ${{ secrets.RUBYGEMS_API_KEY }}
+  github:
+    name: GitHub Packages
+    uses: ./.github/workflows/_publish.yml
+    permissions:
+      packages: write
+    needs: build
+    with:
+      artifact_name: ${{ needs.build.outputs.artifact_name }}
+      registry_key: github
+      registry_host: https://rubygems.pkg.github.com/${{ github.repository_owner }}
+    secrets:
+       registry_credentials: Bearer ${{ secrets.GITHUB_TOKEN }}

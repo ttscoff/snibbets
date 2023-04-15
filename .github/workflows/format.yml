@@ -1,0 +1,41 @@
+---
+name: Format
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  fix:
+    name: Commit fixes
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_committer_name: ${{ secrets.GIT_USER_NAME }}
+          git_committer_email: ${{ secrets.GIT_USER_EMAIL }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Format
+        run: bundle exec rake format
+      - name: Commit
+        uses: stefanzweifel/git-auto-commit-action@v4
+        if: always()
+        with:
+          commit_message: Run format
+          commit_user_name: ${{ secrets.GIT_USER_NAME }}
+          commit_user_email: ${{ secrets.GIT_USER_EMAIL }}
+          commit_author: ${{ secrets.GIT_USER_NAME }} <${{ secrets.GIT_USER_EMAIL }}>

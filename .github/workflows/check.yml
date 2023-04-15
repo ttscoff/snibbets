@@ -1,0 +1,112 @@
+---
+name: Check
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    name: Test (Ruby ${{ matrix.ruby }} on ${{ matrix.os_name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        ruby:
+          - '3.0'
+          - '3.1'
+          - '3.2'
+        include:
+          - os: ubuntu-latest
+            os_name: Linux
+          - os: macos-latest
+            os_name: macOS
+          - os: windows-latest
+            os_name: Windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          ruby_version: ${{ matrix.ruby }}
+      - name: Test
+        run: bundle exec rake test
+  lint:
+    name: Lint (Ruby ${{ matrix.ruby }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby:
+          - '3.0'
+          - '3.1'
+          - '3.2'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          ruby_version: ${{ matrix.ruby }}
+      - name: Lint
+        run: bundle exec rake lint
+  build:
+    name: Build
+    uses: ./.github/workflows/_build.yml
+  install:
+    name: Install (Ruby ${{ matrix.ruby }} on ${{ matrix.os_name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        ruby:
+          - '3.0'
+          - '3.1'
+          - '3.2'
+        include:
+          - os: ubuntu-latest
+            os_name: Linux
+          - os: macos-latest
+            os_name: macOS
+          - os: windows-latest
+            os_name: Windows
+    steps:
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: .
+      - name: Find gems
+        uses: tj-actions/glob@v16
+        id: gems
+        with:
+          files: '*.gem'
+      - name: Create main.rb
+        uses: DamianReeves/write-file-action@v1.2
+        with:
+          write-mode: overwrite
+          path: main.rb
+          contents: |
+            require 'snibbets'
+      - name: Install
+        run: gem install ${{ steps.gems.outputs.paths }}
+      - name: Run
+        run: ruby main.rb
