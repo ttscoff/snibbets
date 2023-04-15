@@ -1,0 +1,4 @@
+--format documentation
+--color
+--require spec_helper
+--pattern "{spec,lib}/**/*_spec.rb"
