@@ -20,8 +20,12 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "#{spec.metadata["source_code_uri"]}/blob/main/CHANGELOG.md"
   spec.metadata["github_repo"] = "git@github.com:ttscoff/snibbets.git"
 
+  spec.require_paths << 'lib'
+  spec.extra_rdoc_files = ['README.md','snibbets.rdoc']
+  spec.rdoc_options << '--title' << 'na' << '--main' << 'README.md' << '--markup' << 'markdown'
+
   spec.bindir = "bin"
-  spec.executables = spec.files.grep(%r{\A#{spec.bindir}/}) { |f| File.basename(f) }
+  spec.executables << 'snibbets'
 
   spec.files = Dir["lib/**/*.rb"].reject { |f| f.end_with?("_spec.rb") }
   spec.files += Dir["[A-Z]*"]

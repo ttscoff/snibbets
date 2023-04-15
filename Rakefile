@@ -1,8 +1,13 @@
-# frozen_string_literal: true
-
 require "bundler/gem_tasks"
 require "rspec/core/rake_task"
+require 'rdoc/task'
 require "standard/rake"
+
+Rake::RDocTask.new do |rd|
+  rd.main = "README.rdoc"
+  rd.rdoc_files.include("README.rdoc", "lib/**/*.rb", "bin/**/*")
+  rd.title = 'Snibbets'
+end
 
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = "--pattern {spec,lib}/**/*_spec.rb"
