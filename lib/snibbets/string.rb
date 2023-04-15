@@ -138,7 +138,7 @@ module Snibbets
       parts.each do |part|
         lines = part.split(/\n/).strip_empty
 
-        next if lines.count == 1
+        next if lines.blocks == 0
 
         title = lines.count > 1 ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
         block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }

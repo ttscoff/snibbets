@@ -122,11 +122,23 @@ module Snibbets
       end
 
       def menu(res, filename: nil, title: 'Select one', query: nil)
+        menu_opt = Snibbets.options[:menus]
         query&.remove_spotlight_tags!
+
         fzf = TTY::Which.which('fzf')
+        gum = TTY::Which.which('gum')
+
+        case menu_opt
+        when /fzf/
+          return fzf_menu(fzf, res, title, query, filename) unless fzf.empty?
+        when /gum/
+          return gum_menu(gum, res, title, query, filename) unless gum.empty?
+        when /console/
+          return console_menu(res, title, filename, query: query)
+        end
+
         return fzf_menu(fzf, res, title, query, filename) unless fzf.empty?
 
-        gum = TTY::Which.which('gum')
         return gum_menu(gum, res, title, query, filename) unless gum.empty?
 
         console_menu(res, title, filename, query: query)
