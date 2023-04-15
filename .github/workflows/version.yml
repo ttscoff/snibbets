@@ -1,0 +1,52 @@
+---
+name: Version
+
+run-name: Cut ${{ github.event.inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to cut
+        required: true
+
+jobs:
+  tag:
+    name: Tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_committer_name: ${{ secrets.GIT_USER_NAME }}
+          git_committer_email: ${{ secrets.GIT_USER_EMAIL }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Cut ${{ github.event.inputs.version }} version
+        run: bundle exec gem bump --no-commit --version ${{ github.event.inputs.version }}
+      - name: Update Gemfile.lock
+        run: |
+          bundle config set --local deployment 'false'
+          bundle install
+      - name: Get meta
+        id: meta
+        run: |
+          version=$(bundle exec parse-gemspec-cli parse *.gemspec | jq -r .version)
+          echo "version=${version}" >> $GITHUB_OUTPUT
+      - name: Tag ${{ github.event.inputs.version }} version
+        run: |
+          git add .
+          git commit --sign -m "${VERSION}"
+          git tag --sign "v${VERSION}" -m "${VERSION}"
+          git push --follow-tags
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
