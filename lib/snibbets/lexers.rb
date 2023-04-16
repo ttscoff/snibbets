@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative 'lexers_db'
 
 module Snibbets
   # Lexer definitions
@@ -10,7 +11,7 @@ module Snibbets
 
       def build_lexers
         lex = []
-        IO.read('lib/snibbets/lexers_db.txt').split(/\n/).each do |line|
+        LEXERS_DB.split(/\n/).each do |line|
           key = line.match(/(?mi)^((, )?[^,]+?)+?(?=\[)/)[0]
           keys = key.split(/,/).map(&:strip)
           value = line.match(/\[(.*?)\]/)[1]

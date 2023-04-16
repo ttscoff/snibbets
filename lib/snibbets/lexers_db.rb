@@ -1,3 +1,4 @@
+LEXERS_DB =<<EOLEXERS
 abap [abap, ABAP]
 abnf [abnf]
 actionscript, as [as]
@@ -375,3 +376,4 @@ zeek [zeek]
 bro [bro]
 zephir [zep]
 zig [zig]
+EOLEXERS
