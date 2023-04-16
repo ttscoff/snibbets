@@ -8,7 +8,8 @@ module Snibbets
       save_config: false,
       edit_config: false,
       edit_snippet: false,
-      paste_snippet: false
+      paste_snippet: false,
+      nvultra: false
     }.freeze
 
     DEFAULT_OPTIONS = {
