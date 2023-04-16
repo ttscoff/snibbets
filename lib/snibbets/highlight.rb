@@ -1,15 +1,27 @@
 module Snibbets
   module Highlight
     class << self
+      def run_command_with_input(*cmd, input: nil, fallback: nil)
+        stdout, _stderr, status = Open3.capture3(*cmd, stdin_data: input)
+        if status.success?
+          stdout
+        elsif fallback.nil?
+          input
+        else
+          run_command_with_input(fallback, input: input, fallback: nil)
+        end
+      end
+
       def highlight_pygments(executable, code, syntax, theme)
-        puts [syntax, theme]
-        # syntax = syntax.nil? || syntax.empty? ? '-g' : "-l #{syntax}"
+        syntax = syntax.nil? || syntax.empty? ? '-g' : "-l #{syntax}"
         theme = theme.nil? || theme.empty? ? '' : ",style=#{theme}"
-        `echo #{Shellwords.escape(code)} | #{executable} -O full#{theme} -g` # #{syntax}
+        command = "#{executable} -O full#{theme} #{syntax}"
+        fallback = "#{executable} -O full#{theme} -g"
+        run_command_with_input(command, input: code, fallback: fallback)
       end
 
       def highlight_skylight(executable, code, syntax, theme)
-        theme ||= 'monokai'
+        theme ||= 'nord'
         theme_file = if theme =~ %r{^[/~].*?(\.theme)?$}
                        theme = theme.sub(/(\.theme)?$/, '.theme')
                        File.expand_path(theme)
@@ -25,13 +37,14 @@ module Snibbets
                 end
         return code if syntax.nil? || syntax.empty?
 
-        `echo #{Shellwords.escape(code)} | #{executable} #{theme}--syntax #{syntax}`
+        run_command_with_input("#{executable} #{theme}--syntax #{syntax}", input: code)
+        # `echo #{Shellwords.escape(code)} | #{executable} #{theme}--syntax #{syntax}`
       end
 
       def highlight(code, filename, syntax, theme = nil)
         return code unless $stdout.isatty
 
-        theme ||= Snibbets.options[:highlight_theme]
+        theme ||= Snibbets.options[:highlight_theme] || 'monokai'
         syntax ||= Lexers.syntax_from_extension(filename)
 
         return code if ['text'].include?(syntax)
