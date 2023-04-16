@@ -108,7 +108,19 @@ The `copy` setting determines whether the output is copied to the clipboard in a
 
 The `editor` setting is used to open the config file, and to open snippets for editing when using the `--edit` flag. This setting can be any command line utility (`code`, `subl`, `vim`, `nano`, etc.), or on macOS it can be an application name (`BBEdit`, `VS Code`, etc.) or a bundle identifier (`com.sublimetext.4`, `com.microsoft.VSCode`, etc.). If no editor is set, then the file will be opened by whatever the system default is (using `open` on macOS, `start` on Windows, or `xdg-open`on Linux).
 
+The `include_blockquotes` setting determines whether blockquotes are included in the output. By default, Snibbets removes everything other than code blocks (indented or fenced) from the output it displays. But if you want to include a note that you'll see on the command line, you can put it in a block quote by preceding each line you want to preserve with a right angle bracket (`>`).
+
+The `interactive` setting determines whether menus will be displayed. This should generally be true, but if you want silent operation that just displays the best match automatically, set it to false. 
+
+The `menus` setting will determine what method is used for displaying interactive menus. If this is not set, it will be automatically determined in the order of `fzf`, `gum`, and `console`. You can manually choose to use one of these options over another by making it the `menus` setting.
+
+The `name_only` key will permanently set Snibbets to only search for snippets by their filename rather than examining their contents. You can enable this at runtime using `--name-only` in the command.
+
+#### Syntax Highlighting
+
 The `highlight` key turns on syntax highlighting. This requires that either `pygmentize` or `skyligting` is available on your system (both available via package managers like Homebrew). This feature is still in development and results may be mixed. You can also set `highlighter` to `pygments` or `skylight` to force using one highlighter over the other. 
+
+Highlighting (especially using Skylighting) requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`.
 
 You can also define a color theme with `highlight_theme`. If you're using Pygments, run `pygmentize -L styles` to see available options. If you're using Skylighting, the only currently-available options are:
 
@@ -117,14 +129,6 @@ You can also define a color theme with `highlight_theme`. If you're using Pygmen
 - nord
 - solarized-dark
 - solarized-light
-
-The `include_blockquotes` setting determines whether blockquotes are included in the output. By default, Snibbets removes everything other than code blocks (indented or fenced) from the output it displays. But if you want to include a note that you'll see on the command line, you can put it in a block quote by preceding each line you want to preserve with a right angle bracket (`>`).
-
-The `interactive` setting determines whether menus will be displayed. This should generally be true, but if you want silent operation that just displays the best match automatically, set it to false. 
-
-The `menus` setting will determine what method is used for displaying interactive menus. If this is not set, it will be automatically determined in the order of `fzf`, `gum`, and `console`. You can manually choose to use one of these options over another by making it the `menus` setting.
-
-The `name_only` key will permanently set Snibbets to only search for snippets by their filename rather than examining their contents. You can enable this at runtime using `--name-only` in the command.
 
 ### Usage
 
