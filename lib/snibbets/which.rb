@@ -16,8 +16,8 @@ module TTY
     end
     module_function :app_bundle
 
-    def bundle_id?(cmd)
-      cmd =~ /^\w+(\.\w+){2,}/
+    def bundle_id?(id)
+      id =~ /^\w+(\.\w+){2,}/ ? true : false
     end
     module_function :bundle_id?
 

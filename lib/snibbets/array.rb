@@ -15,25 +15,21 @@ module Snibbets
     def remove_leading_empty_elements
       output = []
 
+      in_leader = true
       each do |line|
-        next if line =~ /^\s*$/ || line.empty?
-
-        output << line
+        if (line =~ /^\s*$/ || line.empty?) && in_leader
+          next
+        else
+          in_leader = false
+          output << line
+        end
       end
 
       output
     end
 
     def remove_trailing_empty_elements
-      output = []
-
-      reverse.each do |line|
-        next if line =~ /^\s*$/ || line.empty?
-
-        output << line
-      end
-
-      output.reverse
+      reverse.remove_leading_empty_elements.reverse
     end
   end
 end

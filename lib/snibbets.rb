@@ -139,8 +139,6 @@ module Snibbets
         exit!
       end
 
-      build_lexers
-
       pb = OS.paste.outdent
 
       printf 'What does this snippet do? '
@@ -150,10 +148,10 @@ module Snibbets
       printf 'What language(s) does it use (separate with spaces, full names or file extensions will work)? '
       input = $stdin.gets.chomp
       langs = input.split(/ +/).map(&:strip) unless input.empty?
-      exts = langs.map { |lang| Snibbets::Lexers.lang_to_ext(lang) }
-      tags = langs.map { |lang| Snibbets::Lexers.ext_to_lang(lang) }.concat(langs).sort.uniq
+      exts = langs.map { |lang| Lexers.lang_to_ext(lang) }
+      tags = langs.map { |lang| Lexers.ext_to_lang(lang) }.concat(langs).sort.uniq
 
-      filename ="#{title}.#{exts.join('.')}.#{Snibbets.options[:extension]}"
+      filename = "#{title}.#{exts.join('.')}.#{Snibbets.options[:extension]}"
 
       File.open(File.join(File.expand_path(Snibbets.options[:source]), filename), 'w') do |f|
         f.puts "tags: #{tags.join(', ')}
