@@ -117,7 +117,7 @@ module Snibbets
         end
       end
 
-      sans_blocks = sans_blocks.gsub(/^(`{3,})( *\w+)? *\n(.*?)\n\1 *\n/m) do
+      sans_blocks = sans_blocks.gsub(/(?mi)^(`{3,})( *\w+)? *\n([\s\S]*?)\n\1 *(\n|\Z)/) do
         counter += 1
         lang = Regexp.last_match(2)
         lang = "<lang:#{lang.strip}>\n" if lang
