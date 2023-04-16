@@ -112,7 +112,7 @@ module Snibbets
       if Snibbets.options[:include_blockquotes]
         sans_blocks = sans_blocks.gsub(/(?mi)(^(>.*?)(\n|$))+/) do
           counter += 1
-          code_blocks["block#{counter}"] = Regexp.last_match(0)
+          code_blocks["block#{counter}"] = Regexp.last_match(0).gsub(/^> *(?=\S)/, '# ')
           "<block#{counter}>\n"
         end
       end
