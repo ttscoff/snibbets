@@ -120,11 +120,13 @@ The `name_only` key will permanently set Snibbets to only search for snippets by
 
 #### Syntax Highlighting
 
-The `highlight` key turns on syntax highlighting. This requires that either `pygmentize` or `skyligting` is available on your system (both available via package managers like Homebrew). This feature is still in development and results may be mixed. You can also set `highlighter` to `pygments` or `skylight` to force using one highlighter over the other. 
+The `highlight` key turns on syntax highlighting. This requires that either `pygmentize` or `skylighting` is available on your system (both available via package managers like Homebrew). This feature is still in development and results may be mixed. You can also set `highlighter` to `pygments` or `skylight` to force using one highlighter over the other. 
 
-Highlighting using Skylighting requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`.
+Highlighting using Skylighting requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`. 
 
-You can also define languages in your fenced code blocks by putting the lexer name right after the opening fence. This is used with Skylighting, but Pygments will always use it's own lexer detection. When defining multiple snippets in one file that are of different languages, this method will ensure that each one is properly highlighted. 
+You can also define languages in your fenced code blocks by putting the lexer name right after the opening fence. When defining multiple snippets in one file that are of different languages, this method will ensure that each one is properly highlighted. 
+
+If you don't use either extensions or fenced code labels with Skylighting, code won't get highlighted.
 
 To define a snippet as python code, for example:
 
@@ -147,7 +149,7 @@ You can turn highlighting on or off for a single run using `--highlight` or `--n
 
 Snibbet's implementation of Skylighting has limited but better-looking themes, and has some lexers that Pygments lacks. However, Pygments has _more_ lexers and a wider array of themes. It also can determine the target syntax automatically better than Skylighting (which requires the syntax to be specified -- it's pulled from the extensions of your snippets), which is why Pygments is the default if it's installed and you don't configure it otherwise.
 
-- Install [Skylighting] with [Homebrew] (`brew install pygmentize`) or [apt-get].
+- Install [Skylighting] with [Homebrew] (`brew install skylighting`) or [apt-get].
 - Install [Pygments] using [Homebrew] (`brew install pygments`) or `pip install pygments`.
 
 [Skylighting]: https://github.com/jgm/skylighting
