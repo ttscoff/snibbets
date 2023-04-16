@@ -3,7 +3,7 @@
 <!--README-->
 <!--GITHUB-->
 [![RubyGems.org](https://img.shields.io/gem/v/snibbets)](https://rubygems.org/gems/snibbets)
-[![GitHub Actions](https://github.com/ttscoff/snibbets/actions/workflows/check.yml/badge.svg)](https://github.com/ttscoff/snibbets/actions/workflows/check.yml)
+<!-- [![GitHub Actions](https://github.com/ttscoff/snibbets/actions/workflows/check.yml/badge.svg)](https://github.com/ttscoff/snibbets/actions/workflows/check.yml) -->
 <!--END GITHUB-->
 A tool for accessing code snippets contained in a folder of plain text Markdown files.
 
