@@ -155,7 +155,7 @@ Snibbet's implementation of Skylighting has limited but better-looking themes, a
 ### Usage
 
 ```
-Snibbets v2.0.21
+Snibbets v2.0.22
 
 Usage: snibbets [options] query
     -a, --all                        If a file contains multiple snippets, output all of them (no menu)
@@ -172,6 +172,7 @@ Usage: snibbets [options] query
         --save                       Save the current command line options to the YAML configuration
     -h, --help                       Display this screen
     -v, --version                    Display version information
+        --changes                    Display the changelog (release notes)
 ```
 
 If your Snippets folder is set in the config, simply running `snibbets [search query]` will perform the search and output the code blocks, presenting a menu if more than one match is found or the target file contains more than one snippet. Selected contents are output raw to STDOUT.
