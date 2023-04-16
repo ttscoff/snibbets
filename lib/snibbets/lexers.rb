@@ -28,17 +28,23 @@ module Snibbets
       end
 
       def ext_to_lang(ext)
-        matches = lexers.select { |lex| lex[:extensions]&.include?(ext.downcase) }
+        return nil if ext.nil?
+
+        matches = lexers.select { |lex| lex[:extensions].map(&:downcase).include?(ext.downcase) }
         matches.map { |lex| lex[:lexer] }.first || ext
       end
 
       def lang_to_ext(lexer)
-        matches = lexers.select { |lex| lex[:lexer] == lexer || lex[:aliases]&.include?(lexer.downcase) }
+        return nil if lexer.nil?
+
+        matches = lexers.select { |lex| lex[:lexer] == lexer || lex[:aliases].map(&:downcase).include?(lexer.downcase) }
         matches.map { |lex| lex[:extensions].first }.first || lexer
       end
 
       def syntax_from_extension(filename)
         exts = filename.split(/\./)[1..-2]
+        return nil if exts.count.zero?
+
         ext_to_lang(exts[-1])
       end
     end
