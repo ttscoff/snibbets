@@ -126,7 +126,7 @@ You can also define a color scheme with `highlight_theme`. If you're using Pygme
 
 [KDE repository]: https://github.com/KDE/syntax-highlighting/tree/master/data/themes
 
-You can turn highlighting on or off for a single run using `--highlight` or `--no-highlight`. Syntax highlighting definitely affects copyable output, so it's automatically disabled when using `--copy` or piping/redirecting output.
+You can turn highlighting on or off for a single run using `--highlight` or `--no-highlight`. Syntax highlighting definitely affects copyable output, so it's automatically disabled when piping/redirecting output. When using `--copy`, the code sent to the clipboard is not highlighted.
 
 ##### Installing a Syntax Highlighter
 
@@ -142,7 +142,7 @@ Snibbet's implementation of Skylighting has limited but better-looking themes, a
 ### Usage
 
 ```
-Snibbets v2.0.16
+Snibbets v2.0.17
 
 Usage: snibbets [options] query
     -a, --all                        If a file contains multiple snippets, output all of them (no menu)
@@ -155,7 +155,7 @@ Usage: snibbets [options] query
     -s, --source FOLDER              Snippets folder to search
         --configure                  Open the configuration file in your default editor
         --[no-]blockquotes           Include block quotes in output
-        --highlight                  Use pygments or skylighting to syntax highlight (if installed)
+        --[no-]highlight             Use pygments or skylighting to syntax highlight (if installed)
         --save                       Save the current command line options to the YAML configuration
     -h, --help                       Display this screen
     -v, --version                    Display version information
@@ -192,7 +192,7 @@ Any time you specify things like a source folder with the `--source` flag, or tu
 
 _I'm currently reworking the LaunchBar action, and it doesn't function very well at this time. I'll update when I have a chance._
 
-### Installation
+<!-- ### Installation
 
 The LaunchBar action can be installed simply by double clicking the `.lbaction` file in Finder. The CLI is not required for the LaunchBar action to function. 
 
@@ -200,4 +200,4 @@ Once installed, run the action (type `snib` and hit return on the result) to sel
 
 ### Usage
 
-Type `snib` to bring the Action up, then hit Space to enter your query text. Matching files will be presented. If the selected file contains more than one snippet, a list of snippets (based on ATX headers in the file) will be presented as a child menu. Selecting a snippet and hitting return will copy the associated code block to the clipboard.
+Type `snib` to bring the Action up, then hit Space to enter your query text. Matching files will be presented. If the selected file contains more than one snippet, a list of snippets (based on ATX headers in the file) will be presented as a child menu. Selecting a snippet and hitting return will copy the associated code block to the clipboard. -->
