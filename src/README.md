@@ -124,7 +124,18 @@ The `highlight` key turns on syntax highlighting. This requires that either `pyg
 
 Highlighting using Skylighting requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`.
 
-You can also define a color scheme with `highlight_theme`. If you're using Pygments, run `pygmentize -L styles` to see available options. If you're using Skylighting, you can reference any theme in the [KDE repository]. Skylighting themes are included in Snibbets can be referenced by their filename without `.theme`, or you can install your own themes and reference them with a full path.
+You can also define languages in your fenced code blocks by putting the lexer name right after the opening fence. This is used with Skylighting, but Pygments will always use it's own lexer detection. To define a snippet as python code, for example:
+
+    ```python
+    class EmlServer(SMTPServer):
+        no = 0
+        def process_message(self, peer, mailfrom, rcpttos, data):
+            filename = '%s-%d.eml' % (datetime.now().strftime('%Y%m%d%H%M%S'),
+                    self.no)
+            f = open(filename, 'w')
+    ```
+
+You can also define a color scheme with `highlight_theme`. If you're using Pygments, run `pygmentize -L styles` to see available options. If you're using Skylighting, you can reference any theme in the [KDE repository]. Skylighting themes are included in Snibbets and can be referenced by their filename without `.theme`, or you can install your own themes and reference them with a full path. (I recommend `nord` when using Sylighting.)
 
 [KDE repository]: https://github.com/KDE/syntax-highlighting/tree/master/data/themes
 

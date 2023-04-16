@@ -28,11 +28,13 @@ module Snibbets
         `echo #{Shellwords.escape(code)} | #{executable} #{theme}--syntax #{syntax}`
       end
 
-      def highlight(code, filename, theme = nil)
+      def highlight(code, filename, syntax, theme = nil)
         return code unless $stdout.isatty
 
         theme ||= Snibbets.options[:highlight_theme]
-        syntax = Lexers.syntax_from_extension(filename)
+        syntax ||= Lexers.syntax_from_extension(filename)
+
+        return code if ['text'].include?(syntax)
 
         skylight = TTY::Which.which('skylighting')
         pygments = TTY::Which.which('pygmentize')

@@ -257,7 +257,8 @@ module Snibbets
               warn header
               warn '-' * header.length
               code = snip['code']
-              print(code, filepath)
+              lang = snip['language']
+              print(code, filepath, lang)
             end
           end
         elsif snippets.length > 1
@@ -303,16 +304,17 @@ module Snibbets
               warn header
               warn '-' * header.length
               code = answer['code']
-              print(code, filepath)
+              lang = answer['language']
+              print(code, filepath, lang)
             end
           end
         end
       end
     end
 
-    def print(output, filepath)
+    def print(output, filepath, syntax = nil)
       if Snibbets.options[:highlight]
-        $stdout.puts(Highlight.highlight(output, filepath))
+        $stdout.puts(Highlight.highlight(output, filepath, syntax))
       else
         $stdout.puts(output)
       end
