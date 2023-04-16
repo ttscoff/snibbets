@@ -124,7 +124,9 @@ The `highlight` key turns on syntax highlighting. This requires that either `pyg
 
 Highlighting using Skylighting requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`.
 
-You can also define languages in your fenced code blocks by putting the lexer name right after the opening fence. This is used with Skylighting, but Pygments will always use it's own lexer detection. To define a snippet as python code, for example:
+You can also define languages in your fenced code blocks by putting the lexer name right after the opening fence. This is used with Skylighting, but Pygments will always use it's own lexer detection. When defining multiple snippets in one file that are of different languages, this method will ensure that each one is properly highlighted. 
+
+To define a snippet as python code, for example:
 
     ```python
     class EmlServer(SMTPServer):

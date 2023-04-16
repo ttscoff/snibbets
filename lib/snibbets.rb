@@ -251,7 +251,7 @@ module Snibbets
           Process.exit 0
         elsif snippets.length == 1 || !Snibbets.options[:interactive]
           if Snibbets.options[:output] == 'json'
-            print(snippets.to_json)
+            print(snippets.to_json, filepath)
           else
             snippets.each do |snip|
               header = File.basename(filepath, '.md')
@@ -265,16 +265,16 @@ module Snibbets
         elsif snippets.length > 1
           if Snibbets.options[:all]
             if Snibbets.options[:output] == 'json'
-              print(snippets.to_json)
+              print(snippets.to_json, filepath)
             else
-              output = []
+
               snippets.each do |snippet|
-                output << snippet['title']
-                output << '-' * snippet['title'].length
-                output << snippet['code']
-                output << "\n"
+                lang = snippet['language']
+                warn "# #{snippet['title']}"
+                # warn "# #{'-' * snippet['title'].length}"
+                print(snippet['code'], filepath, lang)
+                puts
               end
-              print(output.join("\n"))
             end
           else
             snippets.push({ 'title' => 'All snippets', 'code' => '' })
@@ -284,22 +284,23 @@ module Snibbets
             if answer['title'] == 'All snippets'
               snippets.delete_if { |s| s['title'] == 'All snippets' }
               if Snibbets.options[:output] == 'json'
-                print(snippets.to_json)
+                print(snippets.to_json, filepath)
               else
                 header = File.basename(filepath, '.md')
                 warn header
                 warn '=' * header.length
-                output = []
+
                 snippets.each do |snippet|
-                  output << snippet['title']
-                  output << '-' * snippet['title'].length
-                  output << snippet['code']
-                  output << "\n"
+                  lang = snippet['language']
+                  warn "# #{snippet['title']}"
+                  # warn "# #{'-' * snippet['title'].length}"
+                  print(snippet['code'], filepath, lang)
+                  puts
                 end
-                print(output.join("\n"))
+
               end
             elsif Snibbets.options[:output] == 'json'
-              print(answer.to_json)
+              print(answer.to_json, filepath)
             else
               header = "#{File.basename(filepath, '.md')}: #{answer['title']}"
               warn header
@@ -314,7 +315,7 @@ module Snibbets
     end
 
     def print(output, filepath, syntax = nil)
-      if Snibbets.options[:highlight]
+      if Snibbets.options[:highlight] && Snibbets.options[:output] == 'raw'
         $stdout.puts(Highlight.highlight(output, filepath, syntax))
       else
         $stdout.puts(output)
