@@ -11,6 +11,7 @@ module Snibbets
       extension: 'md',
       highlight: false,
       highlighter: nil,
+      highlight_theme: 'monokai',
       include_blockquotes: false,
       interactive: true,
       launchbar: false,

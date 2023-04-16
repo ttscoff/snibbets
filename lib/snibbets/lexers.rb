@@ -38,7 +38,8 @@ module Snibbets
       end
 
       def syntax_from_extension(filename)
-        ext_to_lang(filename.split(/\./)[1])
+        exts = filename.split(/\./)[1..-2]
+        ext_to_lang(exts[-1])
       end
     end
   end
