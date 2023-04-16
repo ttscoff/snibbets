@@ -6,17 +6,11 @@ require 'snibbets'
 
 module Snibbets
   class << self
-    attr_reader :arguments, :query
+    attr_reader :query
 
     def run
-      options = Snibbets.config.options
-
-      @arguments = {
-        save_config: false,
-        edit_config: false,
-        edit_snippet: false,
-        paste_snippet: false
-      }
+      options = Snibbets.options
+      arguments = Snibbets.arguments
 
       optparse = OptionParser.new do |opts|
         opts.banner = "Usage: #{File.basename(__FILE__)} [options] query"
@@ -30,7 +24,7 @@ module Snibbets
         end
 
         opts.on('-e', '--edit', 'Open the selected snippet in your configured editor') do
-          @arguments[:edit_snippet] = true
+          arguments[:edit_snippet] = true
         end
 
         opts.on('-n', '--[no-]name-only', 'Only search file names, not content') do |v|
@@ -48,7 +42,7 @@ module Snibbets
         end
 
         opts.on('-p', '--paste', '--new', 'Interactively create a new snippet from clipboard contents (Mac only)') do
-          @arguments[:paste_snippet] = true
+          arguments[:paste_snippet] = true
         end
 
         opts.on('-q', '--quiet', 'Skip menus and display first match') do
@@ -61,19 +55,19 @@ module Snibbets
         end
 
         opts.on('--configure', 'Open the configuration file in your default editor') do
-          @arguments[:edit_config] = true
+          arguments[:edit_config] = true
         end
 
         opts.on('--[no-]blockquotes', 'Include block quotes in output') do |v|
           options[:include_blockquotes] = v
         end
 
-        opts.on('--highlight', 'Use pygments or skylighting to syntax highlight (if installed)') do
-          options[:highlight] = true
+        opts.on('--[no-]highlight', 'Use pygments or skylighting to syntax highlight (if installed)') do |v|
+          options[:highlight] = v
         end
 
         opts.on('--save', 'Save the current command line options to the YAML configuration') do
-          @arguments[:save_config] = true
+          arguments[:save_config] = true
         end
 
         opts.on('-h', '--help', 'Display this screen') do
@@ -91,13 +85,13 @@ module Snibbets
 
       optparse.parse!
 
-      if @arguments[:save_config]
+      if arguments[:save_config]
         config = Snibbets::Config.new
         config.write_config
         puts "Configuration saved to #{config.config_file}"
       end
 
-      if @arguments[:edit_config]
+      if arguments[:edit_config]
         config = Snibbets::Config.new
         config.write_config
         open_snippet_in_editor(config.config_file)
@@ -110,7 +104,7 @@ module Snibbets
         Process.exit 1
       end
 
-      if @arguments[:paste_snippet]
+      if arguments[:paste_snippet]
         Snibbets.new_snippet_from_clipboard
         Process.exit 0
       end
@@ -130,7 +124,7 @@ module Snibbets
       @query = CGI.unescape(@query)
 
       if @query.strip.empty?
-        if @arguments[:save_config]
+        if arguments[:save_config]
           Process.exit 0
         else
           puts 'No search query'

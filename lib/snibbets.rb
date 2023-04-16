@@ -29,6 +29,10 @@ module Snibbets
     def options
       @options = config.options
     end
+
+    def arguments
+      @arguments = config.arguments
+    end
   end
 end
 
@@ -234,7 +238,7 @@ module Snibbets
           input = IO.read(filepath)
         end
 
-        if @arguments[:edit_snippet]
+        if Snibbets.arguments[:edit_snippet]
           open_snippet_in_editor(filepath)
           Process.exit 0
         end
@@ -253,8 +257,7 @@ module Snibbets
               warn header
               warn '-' * header.length
               code = snip['code']
-              code = Highlight.highlight(code, filepath) if Snibbets.options[:highlight]
-              print(code)
+              print(code, filepath)
             end
           end
         elsif snippets.length > 1
@@ -277,7 +280,7 @@ module Snibbets
             answer = Menu.menu(snippets, filename: File.basename(filepath, '.md'), title: 'Select snippet', query: @query)
 
             if answer['title'] == 'All snippets'
-              snippets.delete_if { |s| s['title'] == 'All snippets'}
+              snippets.delete_if { |s| s['title'] == 'All snippets' }
               if Snibbets.options[:output] == 'json'
                 print(snippets.to_json)
               else
@@ -300,16 +303,19 @@ module Snibbets
               warn header
               warn '-' * header.length
               code = answer['code']
-              code = Highlight.highlight(code, filepath) if Snibbets.options[:highlight]
-              print(code)
+              print(code, filepath)
             end
           end
         end
       end
     end
 
-    def print(output)
-      $stdout.puts(output)
+    def print(output, filepath)
+      if Snibbets.options[:highlight]
+        $stdout.puts(Highlight.highlight(output, filepath))
+      else
+        $stdout.puts(output)
+      end
       if Snibbets.options[:copy]
         OS.copy(output)
         $stderr.puts "Copied to clipboard"

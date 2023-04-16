@@ -2,7 +2,14 @@
 
 module Snibbets
   class Config
-    attr_accessor :options, :test_editor, :config_dir, :config_file
+    attr_accessor :options, :arguments, :test_editor, :config_dir, :config_file
+
+    DEFAULT_ARGUMENTS = {
+      save_config: false,
+      edit_config: false,
+      edit_snippet: false,
+      paste_snippet: false
+    }.freeze
 
     DEFAULT_OPTIONS = {
       all: false,
@@ -28,6 +35,7 @@ module Snibbets
       @options = DEFAULT_OPTIONS.merge(custom_config)
       @options[:editor] ||= best_editor
       @options[:menus] ||= best_menu
+      @arguments = DEFAULT_ARGUMENTS.dup
       @test_editor = nil
 
       write_config unless @options.equal?(custom_config)

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    snibbets (2.0.16)
+    snibbets (2.0.17)
       tty-which (~> 0.5, >= 0.5.0)
 
 GEM

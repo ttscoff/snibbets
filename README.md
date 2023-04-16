@@ -120,15 +120,24 @@ The `name_only` key will permanently set Snibbets to only search for snippets by
 
 The `highlight` key turns on syntax highlighting. This requires that either `pygmentize` or `skyligting` is available on your system (both available via package managers like Homebrew). This feature is still in development and results may be mixed. You can also set `highlighter` to `pygments` or `skylight` to force using one highlighter over the other. 
 
-Highlighting (especially using Skylighting) requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`.
+Highlighting using Skylighting requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`.
 
-You can also define a color theme with `highlight_theme`. If you're using Pygments, run `pygmentize -L styles` to see available options. If you're using Skylighting, the only currently-available options are:
+You can also define a color scheme with `highlight_theme`. If you're using Pygments, run `pygmentize -L styles` to see available options. If you're using Skylighting, you can reference any theme in the [KDE repository]. Skylighting themes are included in Snibbets can be referenced by their filename without `.theme`, or you can install your own themes and reference them with a full path.
 
-- breeze-dark
-- monokai
-- nord
-- solarized-dark
-- solarized-light
+[KDE repository]: https://github.com/KDE/syntax-highlighting/tree/master/data/themes
+
+You can turn highlighting on or off for a single run using `--highlight` or `--no-highlight`. Syntax highlighting definitely affects copyable output, so it's automatically disabled when using `--copy` or piping/redirecting output.
+
+##### Installing a Syntax Highlighter
+
+Snibbet's implementation of Skylighting has limited but better-looking themes, and has some lexers that Pygments lacks. However, Pygments has _more_ lexers and a wider array of themes. It also can determine the target syntax automatically better than Skylighting (which requires the syntax to be specified -- it's pulled from the extensions of your snippets), which is why Pygments is the default if it's installed and you don't configure it otherwise.
+
+- Install [Skylighting] with [Homebrew] (`brew install pygmentize`) or [apt-get].
+- Install [Pygments] using [Homebrew] (`brew install pygments`) or `pip install pygments`.
+
+[Skylighting]: https://github.com/jgm/skylighting
+[apt-get]: https://installati.one/install-skylighting-ubuntu-22-04/
+[Pygments]: https://pygments.org/
 
 ### Usage
 
