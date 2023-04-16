@@ -1,3 +1,16 @@
+### 2.0.23
+
+2023-04-16 10:33
+
+#### IMPROVED
+
+- Use Readline for entering info with `--paste`, allows for better editing experience
+- Allow `--edit` with `--paste` to open the new snippet in your editor immediately
+
+#### FIXED
+
+- Code indentation with `--paste`
+
 ### 2.0.22
 
 2023-04-16 09:33
