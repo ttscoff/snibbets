@@ -155,7 +155,7 @@ Snibbet's implementation of Skylighting has limited but better-looking themes, a
 ### Usage
 
 ```
-Snibbets v2.0.23
+Snibbets v2.0.24
 
 Usage: snibbets [options] query
     -a, --all                        If a file contains multiple snippets, output all of them (no menu)
@@ -169,6 +169,7 @@ Usage: snibbets [options] query
         --configure                  Open the configuration file in your default editor
         --[no-]blockquotes           Include block quotes in output
         --[no-]highlight             Use pygments or skylighting to syntax highlight (if installed)
+        --nvultra                    Open the result in nvUltra
         --save                       Save the current command line options to the YAML configuration
     -h, --help                       Display this screen
     -v, --version                    Display version information
