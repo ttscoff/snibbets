@@ -22,10 +22,8 @@ end
 
 task default: %i[test]
 
-desc 'Alias for build (so it shows up in rake -T)'
-task :package do
-  Rake::Task['build'].invoke
-end
+desc 'Alias for build'
+task :package => :build
 
 task test: "spec"
 task lint: "standard"
