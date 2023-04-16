@@ -64,6 +64,10 @@ module Snibbets
           @arguments[:edit_config] = true
         end
 
+        opts.on('--[no-]blockquotes', 'Include block quotes in output') do |v|
+          options[:include_blockquotes] = v
+        end
+
         opts.on('--highlight', 'Use pygments or skylighting to syntax highlight (if installed)') do
           options[:highlight] = true
         end
