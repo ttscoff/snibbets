@@ -20,8 +20,8 @@ module Snibbets
       input = dup
       lines = input.split(/\n/)
       loop do
-        line = lines.shift
-        next if line =~ /^\s*[A-Z\s]+\w:\s*\S+/i || line =~ /^-{3,}\s*$/
+        line = lines[0]
+        lines.shift if line =~ /^\s*[A-Z\s]+\w:\s*\S+/i || line =~ /^-{3,}\s*$/
 
         break
       end
@@ -133,7 +133,7 @@ module Snibbets
         parts = sans_blocks.gsub(/\n{2,}/, "\n\n").split(/^#+/)
       end
 
-      parts.shift if parts.count > 1
+      # parts.shift if parts.count > 1
 
       parts.each do |part|
         lines = part.split(/\n/).strip_empty

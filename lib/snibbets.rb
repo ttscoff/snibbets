@@ -34,6 +34,10 @@ end
 
 module Snibbets
   class << self
+    def change_query(query)
+      @query = query
+    end
+
     # Search the snippets directory for query using find and grep
     def search(try: 0)
       folder = File.expand_path(Snibbets.options[:source])
@@ -270,7 +274,7 @@ module Snibbets
           else
             snippets.push({ 'title' => 'All snippets', 'code' => '' })
 
-            answer = Snibbets::Menu.menu(snippets, filename: File.basename(filepath, '.md'), title: 'Select snippet', query: @query)
+            answer = Menu.menu(snippets, filename: File.basename(filepath, '.md'), title: 'Select snippet', query: @query)
 
             if answer['title'] == 'All snippets'
               snippets.delete_if { |s| s['title'] == 'All snippets'}
