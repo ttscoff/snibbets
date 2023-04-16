@@ -117,9 +117,11 @@ module Snibbets
         end
       end
 
-      sans_blocks = sans_blocks.gsub(/^(`{3,})(\w+)?\s*\n(.*?)\n\1/m) do
+      sans_blocks = sans_blocks.gsub(/^(`{3,})(\s*\w+)?\s*\n(.*?)\n\1/m) do
         counter += 1
-        code_blocks["block#{counter}"] = Regexp.last_match(3)
+        lang = Regexp.last_match(2)
+        lang = "<lang:#{lang.strip}>\n" if lang
+        code_blocks["block#{counter}"] = "#{lang}#{Regexp.last_match(3)}"
         "<block#{counter}>\n"
       end
 
@@ -153,13 +155,20 @@ module Snibbets
         title = lines.count > 1 ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
         block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
 
+        lang = nil
+        if block =~ /<lang:(.*?)>/
+          lang = Regexp.last_match(1)
+          block.gsub!(/<lang:.*?>\n/, '')
+        end
+
         code = block.clean_code
 
         next unless code && !code.empty?
 
         sections << {
           'title' => title,
-          'code' => code
+          'code' => code,
+          'language' => lang
         }
       end
 

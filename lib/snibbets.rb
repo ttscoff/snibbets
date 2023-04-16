@@ -8,6 +8,7 @@ require 'shellwords'
 require 'yaml'
 require 'fileutils'
 require 'tty-which'
+require 'open3'
 require_relative 'snibbets/version'
 require_relative 'snibbets/config'
 require_relative 'snibbets/which'
@@ -28,6 +29,10 @@ module Snibbets
 
     def options
       @options = config.options
+    end
+
+    def arguments
+      @arguments = config.arguments
     end
   end
 end
@@ -234,7 +239,7 @@ module Snibbets
           input = IO.read(filepath)
         end
 
-        if @arguments[:edit_snippet]
+        if Snibbets.arguments[:edit_snippet]
           open_snippet_in_editor(filepath)
           Process.exit 0
         end
@@ -246,30 +251,30 @@ module Snibbets
           Process.exit 0
         elsif snippets.length == 1 || !Snibbets.options[:interactive]
           if Snibbets.options[:output] == 'json'
-            print(snippets.to_json)
+            print(snippets.to_json, filepath)
           else
             snippets.each do |snip|
               header = File.basename(filepath, '.md')
               warn header
               warn '-' * header.length
               code = snip['code']
-              code = Highlight.highlight(code, filepath) if Snibbets.options[:highlight]
-              print(code)
+              lang = snip['language']
+              print(code, filepath, lang)
             end
           end
         elsif snippets.length > 1
           if Snibbets.options[:all]
             if Snibbets.options[:output] == 'json'
-              print(snippets.to_json)
+              print(snippets.to_json, filepath)
             else
-              output = []
+
               snippets.each do |snippet|
-                output << snippet['title']
-                output << '-' * snippet['title'].length
-                output << snippet['code']
-                output << "\n"
+                lang = snippet['language']
+                warn "# #{snippet['title']}"
+                # warn "# #{'-' * snippet['title'].length}"
+                print(snippet['code'], filepath, lang)
+                puts
               end
-              print(output.join("\n"))
             end
           else
             snippets.push({ 'title' => 'All snippets', 'code' => '' })
@@ -277,39 +282,44 @@ module Snibbets
             answer = Menu.menu(snippets, filename: File.basename(filepath, '.md'), title: 'Select snippet', query: @query)
 
             if answer['title'] == 'All snippets'
-              snippets.delete_if { |s| s['title'] == 'All snippets'}
+              snippets.delete_if { |s| s['title'] == 'All snippets' }
               if Snibbets.options[:output] == 'json'
-                print(snippets.to_json)
+                print(snippets.to_json, filepath)
               else
                 header = File.basename(filepath, '.md')
                 warn header
                 warn '=' * header.length
-                output = []
+
                 snippets.each do |snippet|
-                  output << snippet['title']
-                  output << '-' * snippet['title'].length
-                  output << snippet['code']
-                  output << "\n"
+                  lang = snippet['language']
+                  warn "# #{snippet['title']}"
+                  # warn "# #{'-' * snippet['title'].length}"
+                  print(snippet['code'], filepath, lang)
+                  puts
                 end
-                print(output.join("\n"))
+
               end
             elsif Snibbets.options[:output] == 'json'
-              print(answer.to_json)
+              print(answer.to_json, filepath)
             else
               header = "#{File.basename(filepath, '.md')}: #{answer['title']}"
               warn header
               warn '-' * header.length
               code = answer['code']
-              code = Highlight.highlight(code, filepath) if Snibbets.options[:highlight]
-              print(code)
+              lang = answer['language']
+              print(code, filepath, lang)
             end
           end
         end
       end
     end
 
-    def print(output)
-      $stdout.puts(output)
+    def print(output, filepath, syntax = nil)
+      if Snibbets.options[:highlight] && Snibbets.options[:output] == 'raw'
+        $stdout.puts(Highlight.highlight(output, filepath, syntax))
+      else
+        $stdout.puts(output)
+      end
       if Snibbets.options[:copy]
         OS.copy(output)
         $stderr.puts "Copied to clipboard"
