@@ -253,7 +253,7 @@ module Snibbets
               warn header
               warn '-' * header.length
               code = snip['code']
-              code = highlight(code, filepath) if Snibbets.options[:highlight]
+              code = Highlight.highlight(code, filepath) if Snibbets.options[:highlight]
               print(code)
             end
           end
@@ -300,7 +300,7 @@ module Snibbets
               warn header
               warn '-' * header.length
               code = answer['code']
-              code = highlight(code, filepath) if Snibbets.options[:highlight]
+              code = Highlight.highlight(code, filepath) if Snibbets.options[:highlight]
               print(code)
             end
           end

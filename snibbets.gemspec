@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
   spec.executables << 'snibbets'
 
   spec.files = Dir["lib/**/*.rb"].reject { |f| f.end_with?("_spec.rb") }
+  spec.files += Dir["lib/lexers/lexers_db.txt"]
   spec.files += Dir["[A-Z]*"]
 
   spec.add_development_dependency "bundler", "~> 2.0"
