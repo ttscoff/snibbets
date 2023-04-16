@@ -81,6 +81,10 @@ module Snibbets
           options[:highlight] = v
         end
 
+        opts.on('--nvultra', 'Open the result in nvUltra') do
+          arguments[:nvultra] = true
+        end
+
         opts.on('--save', 'Save the current command line options to the YAML configuration') do
           arguments[:save_config] = true
         end

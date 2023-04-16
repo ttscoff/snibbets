@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
+require 'cgi'
+require 'erb'
+require 'fileutils'
+require 'json'
+require 'open3'
 require 'optparse'
 require 'readline'
-require 'json'
-require 'cgi'
 require 'shellwords'
-require 'yaml'
-require 'fileutils'
-require 'tty-which'
 require 'tty-reader'
-require 'open3'
+require 'tty-which'
+require 'yaml'
 require_relative 'snibbets/version'
 require_relative 'snibbets/config'
 require_relative 'snibbets/which'
@@ -111,6 +112,14 @@ module Snibbets
       search(try: try + 1) if matches.empty?
     end
 
+    def open_snippet_in_nvultra(filepath)
+      notebook = Snibbets.options[:source].gsub(/ /, '%20')
+      note = ERB::Util.url_encode(File.basename(filepath, '.md'))
+      url = "x-nvultra://open?notebook=#{notebook}&note=#{note}"
+      puts url
+      `open '#{url}'`
+    end
+
     def open_snippet_in_editor(filepath)
       editor = Snibbets.options[:editor] || Snibbets::Config.best_editor
 
@@ -169,8 +178,8 @@ module Snibbets
       exts = langs if exts.empty?
 
       filename = "#{title}#{exts.map { |x| ".#{x}"}.join('')}.#{Snibbets.options[:extension]}"
-
-      File.open(File.join(File.expand_path(Snibbets.options[:source]), filename), 'w') do |f|
+      filepath = File.join(File.expand_path(Snibbets.options[:source]), filename)
+      File.open(filepath, 'w') do |f|
         f.puts "tags: #{tags.join(', ')}
 
 ```
@@ -179,6 +188,9 @@ module Snibbets
       end
 
       puts "New snippet written to #{filename}."
+
+      open_snippet_in_editor(filepath) if Snibbets.arguments[:edit_snippet]
+      open_snippet_in_nvultra(filepath) if Snibbets.arguments[:nvultra]
     end
 
     def handle_launchbar(results)
@@ -249,6 +261,11 @@ module Snibbets
 
         if Snibbets.arguments[:edit_snippet]
           open_snippet_in_editor(filepath)
+          Process.exit 0
+        end
+
+        if Snibbets.arguments[:nvultra]
+          open_snippet_in_nvultra(filepath)
           Process.exit 0
         end
 

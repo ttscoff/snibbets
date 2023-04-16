@@ -6,7 +6,7 @@ inputs:
   ruby_version:
     description: The Ruby version.
     required: false
-    default: '3.2.0'
+    default: '3.0.1'
   install_dependencies:
     description: Install dependencies.
     required: false
