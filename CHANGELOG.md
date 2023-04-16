@@ -169,6 +169,6 @@
 
 - Refactor script as modules and classes
 
-## 2.0.2
+### 2.0.2
 
 Initial release as a gem

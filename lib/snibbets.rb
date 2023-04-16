@@ -169,8 +169,8 @@ module Snibbets
       exts = langs if exts.empty?
 
       filename = "#{title}#{exts.map { |x| ".#{x}"}.join('')}.#{Snibbets.options[:extension]}"
-
-      File.open(File.join(File.expand_path(Snibbets.options[:source]), filename), 'w') do |f|
+      filepath = File.join(File.expand_path(Snibbets.options[:source]), filename)
+      File.open(filepath, 'w') do |f|
         f.puts "tags: #{tags.join(', ')}
 
 ```
@@ -179,6 +179,8 @@ module Snibbets
       end
 
       puts "New snippet written to #{filename}."
+
+      open_snippet_in_editor(filepath) if Snibbets.arguments[:edit_snippet]
     end
 
     def handle_launchbar(results)
