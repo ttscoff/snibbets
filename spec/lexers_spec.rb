@@ -36,7 +36,7 @@ RSpec.describe Snibbets::Lexers do
   describe '.syntax_from_extension' do
     context 'given a filename' do
       it 'turns filename.rb to ruby' do
-        expect(lexers.syntax_from_extension('filename.rb')).to eq('ruby')
+        expect(lexers.syntax_from_extension('filename.rb.md')).to eq('ruby')
       end
     end
   end
