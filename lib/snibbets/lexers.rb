@@ -28,12 +28,12 @@ module Snibbets
       end
 
       def ext_to_lang(ext)
-        matches = lexers.select { |lex| lex[:extensions].map(&:downcase).include?(ext.downcase) }
+        matches = lexers.select { |lex| lex[:extensions]&.include?(ext.downcase) }
         matches.map { |lex| lex[:lexer] }.first || ext
       end
 
       def lang_to_ext(lexer)
-        matches = lexers.select { |lex| lex[:lexer] == lexer || lex[:aliases].map(&:downcase).include?(lexer.downcase) }
+        matches = lexers.select { |lex| lex[:lexer] == lexer || lex[:aliases]&.include?(lexer.downcase) }
         matches.map { |lex| lex[:extensions].first }.first || lexer
       end
 

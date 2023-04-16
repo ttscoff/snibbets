@@ -1,3 +1,20 @@
+### 2.0.25
+
+2023-04-16 11:09
+
+#### NEW
+
+- `--nvultra` will open the selected snippet in nvUltra
+
+#### IMPROVED
+
+- Use Readline for entering info with `--paste`, allows for better editing experience
+- Allow `--edit` with `--paste` to open the new snippet in your editor immediately
+
+#### FIXED
+
+- Code indentation with `--paste`
+
 ### 2.0.24
 
 2023-04-16 10:49
