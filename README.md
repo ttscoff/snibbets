@@ -106,7 +106,7 @@ The `editor` setting is used to open the config file, and to open snippets for e
 
 The `highlight` key turns on syntax highlighting. This requires that either `pygmentize` or `skyligting` is available on your system (both available via package managers like Homebrew). This feature is still in development and results may be mixed.
 
-The `include_blockquotes` setting determines whether blockquotes are included in the output. By default, Snibbets removes everything other than code blocks (indented or fenced) from the output it displays. But if you want to include a note that you'll see on the command line, you can put it in a block quote by preceding each line you want to preserve with a right angle bracket (`>`). The first `>` of each line will be replaced with `#`, which will make it a comment in most languages (though the feature is not language-aware, so in some cases it will be an annoyance, but you'll probably be deleting or just not copying the comments).
+The `include_blockquotes` setting determines whether blockquotes are included in the output. By default, Snibbets removes everything other than code blocks (indented or fenced) from the output it displays. But if you want to include a note that you'll see on the command line, you can put it in a block quote by preceding each line you want to preserve with a right angle bracket (`>`).
 
 The `interactive` setting determines whether menus will be displayed. This should generally be true, but if you want silent operation that just displays the best match automatically, set it to false. 
 
