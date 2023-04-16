@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.executables << 'snibbets'
 
   spec.files = Dir["lib/**/*.rb"].reject { |f| f.end_with?("_spec.rb") }
-  spec.files += Dir["lib/*.theme"]
+  spec.files += Dir["lib/themes/*.theme"]
   spec.files += Dir["[A-Z]*"]
 
   spec.add_development_dependency "bundler", "~> 2.0"
