@@ -157,8 +157,10 @@ module Snibbets
       printf 'What language(s) does it use (separate with spaces, full names or file extensions will work)? '
       input = $stdin.gets.chomp
       langs = input.split(/ +/).map(&:strip) unless input.empty?
-      exts = langs.map { |lang| Lexers.lang_to_ext(lang) }
-      tags = langs.map { |lang| Lexers.ext_to_lang(lang) }.concat(langs).sort.uniq
+      exts = langs.map { |lang| Lexers.lang_to_ext(lang) }.delete_if(&:nil?)
+      tags = langs.map { |lang| Lexers.ext_to_lang(lang) }.concat(langs).delete_if(&:nil?).sort.uniq
+
+      exts = langs if exts.empty?
 
       filename = "#{title}.#{exts.join('.')}.#{Snibbets.options[:extension]}"
 
