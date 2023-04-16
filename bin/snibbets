@@ -8,6 +8,21 @@ module Snibbets
   class << self
     attr_reader :query
 
+    def display_changelog
+      changelog = File.expand_path(File.join(__dir__, '..', 'CHANGELOG.md'))
+      pagers = [
+        'mdless',
+        'mdcat -p',
+        'bat',
+        ENV['PAGER'],
+        'less -FXr',
+        ENV['GIT_PAGER'],
+        'more -r'
+      ]
+      pager = pagers.find { |cmd| TTY::Which.exist?(cmd.split.first) }
+      system %(#{TTY::Which.which(pager)} "#{changelog}")
+    end
+
     def run
       options = Snibbets.options
       arguments = Snibbets.arguments
@@ -79,6 +94,11 @@ module Snibbets
 
         opts.on('-v', '--version', 'Display version information') do
           puts "Snibbets v#{VERSION}"
+          Process.exit 0
+        end
+
+        opts.on('--changes', 'Display the changelog (release notes)') do
+          display_changelog
           Process.exit 0
         end
       end

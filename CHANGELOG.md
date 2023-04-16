@@ -1,6 +1,18 @@
 ### 2.0.22
 
+<<<<<<< HEAD
 2023-04-16 09:11
+=======
+2023-04-16 09:33
+
+#### IMPROVED
+
+- Use Readline for entering info with `--paste`, allows for better editing experience
+
+#### FIXED
+
+- Code indentation with `--paste`
+>>>>>>> release/2.0.22
 
 ### 2.0.21
 
