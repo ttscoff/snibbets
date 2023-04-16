@@ -129,7 +129,7 @@ The `name_only` key will permanently set Snibbets to only search for snippets by
 ### Usage
 
 ```
-Snibbets v2.0.15
+Snibbets v2.0.16
 
 Usage: snibbets [options] query
     -a, --all                        If a file contains multiple snippets, output all of them (no menu)
