@@ -43,4 +43,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "simplecov-console", "~> 0.9"
   spec.add_development_dependency "standard", "~> 1.3"
   spec.add_runtime_dependency 'tty-which', '~> 0.5', '>= 0.5.0'
+  spec.add_runtime_dependency('tty-reader', '~> 0.9', '>= 0.9.0')
+  spec.add_runtime_dependency('mdless', '~> 1.0', '>= 1.0.32')
 end

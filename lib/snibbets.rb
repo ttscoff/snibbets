@@ -8,6 +8,7 @@ require 'shellwords'
 require 'yaml'
 require 'fileutils'
 require 'tty-which'
+require 'tty-reader'
 require 'open3'
 require_relative 'snibbets/version'
 require_relative 'snibbets/config'
@@ -143,33 +144,38 @@ module Snibbets
     end
 
     def new_snippet_from_clipboard
+      return false unless $stdin.isatty
+
       trap('SIGINT') do
         Howzit.console.info "\nCancelled"
         exit!
       end
 
       pb = OS.paste.outdent
+      reader = TTY::Reader.new
 
-      printf 'What does this snippet do? '
-      input = $stdin.gets.chomp
+      # printf 'What does this snippet do? '
+      input = reader.read_line('What does this snippet do? ').strip
+      # input = $stdin.gets.chomp
       title = input unless input.empty?
 
-      printf 'What language(s) does it use (separate with spaces, full names or file extensions will work)? '
-      input = $stdin.gets.chomp
+      # printf 'What language(s) does it use (separate with spaces, full names or file extensions will work)? '
+      input = reader.read_line('What language(s) does it use (separate with spaces, full names or file extensions will work)? ').strip
+      # input = $stdin.gets.chomp
       langs = input.split(/ +/).map(&:strip) unless input.empty?
       exts = langs.map { |lang| Lexers.lang_to_ext(lang) }.delete_if(&:nil?)
       tags = langs.map { |lang| Lexers.ext_to_lang(lang) }.concat(langs).delete_if(&:nil?).sort.uniq
 
       exts = langs if exts.empty?
 
-      filename = "#{title}.#{exts.join('.')}.#{Snibbets.options[:extension]}"
+      filename = "#{title}#{exts.map { |x| ".#{x}"}.join('')}.#{Snibbets.options[:extension]}"
 
       File.open(File.join(File.expand_path(Snibbets.options[:source]), filename), 'w') do |f|
         f.puts "tags: #{tags.join(', ')}
 
-    ```
-    #{pb}
-    ```"
+```
+#{pb}
+```"
       end
 
       puts "New snippet written to #{filename}."
