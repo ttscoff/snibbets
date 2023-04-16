@@ -3,7 +3,7 @@
 require "simplecov"
 require "simplecov-console"
 
-SimpleCov.start
+# SimpleCov.start
 
 require "snibbets"
 

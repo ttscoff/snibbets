@@ -10,6 +10,7 @@ module Snibbets
       editor: nil,
       extension: 'md',
       highlight: false,
+      include_blockquotes: false,
       interactive: true,
       launchbar: false,
       menus: nil,
