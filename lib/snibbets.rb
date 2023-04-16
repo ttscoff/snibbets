@@ -272,7 +272,7 @@ module Snibbets
 
               snippets.each do |snippet|
                 lang = snippet['language']
-                warn "# #{snippet['title']}"
+                warn "### #{snippet['title']} ###"
                 # warn "# #{'-' * snippet['title'].length}"
                 print(snippet['code'], filepath, lang)
                 puts
@@ -294,7 +294,7 @@ module Snibbets
 
                 snippets.each do |snippet|
                   lang = snippet['language']
-                  warn "# #{snippet['title']}"
+                  warn "### #{snippet['title']} ###"
                   # warn "# #{'-' * snippet['title'].length}"
                   print(snippet['code'], filepath, lang)
                   puts
