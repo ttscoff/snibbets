@@ -11,7 +11,7 @@ module Snibbets
       def highlight_skylight(executable, code, syntax, theme)
         theme ||= 'monokai'
         theme_file = File.join(__dir__, '..', "#{theme}.theme")
-        puts theme_file
+
         theme = if File.exist?(theme_file)
                   "-t #{theme_file} "
                 else
