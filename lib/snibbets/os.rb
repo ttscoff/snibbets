@@ -31,12 +31,12 @@ module Snibbets
         os = RbConfig::CONFIG['target_os']
         case os
         when /darwin.*/i
-          `pbpaste -pboard general -Prefer txt`
+          `pbpaste -pboard general -Prefer txt`.strip_newlines
         else
           if TTY::Which.exist?('xclip')
-            `xclip -o -sel c`
+            `xclip -o -sel c`.strip_newlines
           elsif TTY::Which.exist('xsel')
-            `xsel -ob`
+            `xsel -ob`.strip_newlines
           else
             puts 'Paste not supported on this system, please install xclip or xsel.'
           end

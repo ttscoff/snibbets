@@ -90,11 +90,9 @@ module Snibbets
 
       indent = code[0].match(/^( {4,}|\t+)(?=\S)/)
 
-      if indent
-        code.map! { |line| line.sub(/(?mi)^#{indent[1]}/, '') }.join("\n")
-      else
-        self
-      end
+      return self if indent.nil?
+
+      code.map! { |line| line.sub(/(?mi)^#{indent[1]}/, '') }.join("\n")
     end
 
     def replace_blocks
