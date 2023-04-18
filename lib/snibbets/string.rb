@@ -16,6 +16,10 @@ module Snibbets
       replace remove_spotlight_tags
     end
 
+    def strip_empty
+      split(/\n/).strip_empty.join("\n")
+    end
+
     def remove_meta
       input = dup
       lines = input.split(/\n/)
@@ -93,21 +97,10 @@ module Snibbets
       end
     end
 
-    # Returns an array of snippets. Single snippets are returned without a
-    # title, multiple snippets get titles from header lines
-    def snippets
-      content = dup.remove_meta
-      # If there's only one snippet, just clean it and return
-      # return [{ 'title' => '', 'code' => content.clean_code.strip }] unless multiple?
-
-      # Split content by ATX headers. Everything on the line after the #
-      # becomes the title, code is gleaned from text between that and the
-      # next ATX header (or end)
-      sections = []
+    def replace_blocks
+      sans_blocks = dup
       counter = 0
       code_blocks = {}
-
-      sans_blocks = content.dup
 
       if Snibbets.options[:include_blockquotes]
         sans_blocks = sans_blocks.gsub(/(?mi)(^(>.*?)(\n|$))+/) do
@@ -132,6 +125,23 @@ module Snibbets
         code_blocks["block#{counter}"] = code.join("\n").outdent
         "<block#{counter}>\n"
       end
+
+      [sans_blocks, code_blocks]
+    end
+
+    # Returns an array of snippets. Single snippets are returned without a
+    # title, multiple snippets get titles from header lines
+    def snippets
+      content = dup.remove_meta
+      # If there's only one snippet, just clean it and return
+      # return [{ 'title' => '', 'code' => content.clean_code.strip }] unless multiple?
+
+      # Split content by ATX headers. Everything on the line after the #
+      # becomes the title, code is gleaned from text between that and the
+      # next ATX header (or end)
+      sections = []
+
+      sans_blocks, code_blocks = content.replace_blocks
 
       content = []
       if sans_blocks =~ /<block\d+>/
@@ -165,7 +175,7 @@ module Snibbets
 
         sections << {
           'title' => title,
-          'code' => code,
+          'code' => code.strip_empty,
           'language' => lang
         }
       end

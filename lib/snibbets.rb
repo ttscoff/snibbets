@@ -282,6 +282,7 @@ module Snibbets
               header = File.basename(filepath, '.md')
               warn header
               warn '-' * header.length
+              warn ''
               code = snip['code']
               lang = snip['language']
               print(code, filepath, lang)
@@ -289,52 +290,54 @@ module Snibbets
           end
         elsif snippets.length > 1
           if Snibbets.options[:all]
-            if Snibbets.options[:output] == 'json'
-              print(snippets.to_json, filepath)
-            else
-
-              snippets.each do |snippet|
-                lang = snippet['language']
-                warn "### #{snippet['title']} ###"
-                # warn "# #{'-' * snippet['title'].length}"
-                print(snippet['code'], filepath, lang)
-                puts
-              end
-            end
+            print_all(snippets, filepath)
           else
-            snippets.push({ 'title' => 'All snippets', 'code' => '' })
-
-            answer = Menu.menu(snippets, filename: File.basename(filepath, '.md'), title: 'Select snippet', query: @query)
-
-            if answer['title'] == 'All snippets'
-              snippets.delete_if { |s| s['title'] == 'All snippets' }
-              if Snibbets.options[:output] == 'json'
-                print(snippets.to_json, filepath)
-              else
-                header = File.basename(filepath, '.md')
-                warn header
-                warn '=' * header.length
-
-                snippets.each do |snippet|
-                  lang = snippet['language']
-                  warn "### #{snippet['title']} ###"
-                  # warn "# #{'-' * snippet['title'].length}"
-                  print(snippet['code'], filepath, lang)
-                  puts
-                end
-
-              end
-            elsif Snibbets.options[:output] == 'json'
-              print(answer.to_json, filepath)
-            else
-              header = "#{File.basename(filepath, '.md')}: #{answer['title']}"
-              warn header
-              warn '-' * header.length
-              code = answer['code']
-              lang = answer['language']
-              print(code, filepath, lang)
-            end
+            select_snippet(snippets, filepath)
           end
+        end
+      end
+    end
+
+    def select_snippet(snippets, filepath)
+      snippets.push({ 'title' => 'All snippets', 'code' => '' })
+      answer = Menu.menu(snippets.dup, filename: File.basename(filepath, '.md'), title: 'Select snippet', query: @query)
+
+      if answer['title'] == 'All snippets'
+        snippets.delete_if { |s| s['title'] == 'All snippets' }
+        if Snibbets.options[:output] == 'json'
+          print(snippets.to_json, filepath)
+        else
+          header = File.basename(filepath, '.md')
+          warn header
+          warn '=' * header.length
+          warn ''
+          print_all(snippets, filepath)
+        end
+      elsif Snibbets.options[:output] == 'json'
+        print(answer.to_json, filepath)
+      else
+        header = "#{File.basename(filepath, '.md')}: #{answer['title']}"
+        warn header
+        warn '-' * header.length
+        warn ''
+        code = answer['code']
+        lang = answer['language']
+        print(code, filepath, lang)
+      end
+    end
+
+    def print_all(snippets, filepath)
+      if Snibbets.options[:output] == 'json'
+        print(snippets.to_json, filepath)
+      else
+
+        snippets.each do |snippet|
+          lang = snippet['language']
+          warn "### #{snippet['title']} ###"
+          warn ''
+          # warn "# #{'-' * snippet['title'].length}"
+          print(snippet['code'], filepath, lang)
+          puts
         end
       end
     end
