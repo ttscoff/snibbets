@@ -125,7 +125,7 @@ module Snibbets
         "<block#{counter}>\n"
       end
 
-      sans_blocks = sans_blocks.gsub(/(?mi)^((?: {4,}|\t+)\S[\S\s]*?)(?=\n\S|\Z)/) do
+      sans_blocks = sans_blocks.gsub(/(?mi)(?<=\n\n|\A)\n?((?: {4,}|\t+)\S[\S\s]*?)(?=\n\S|\Z)/) do
         counter += 1
         code = Regexp.last_match(1).split(/\n/)
 
@@ -148,10 +148,9 @@ module Snibbets
 
       parts.each do |part|
         lines = part.split(/\n/).strip_empty
-
         next if lines.blocks == 0
 
-        title = lines.count > 1 ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
+        title = lines.count > 1 && lines[0] !~ /<block\d+>/ ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
         block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
 
         lang = nil
