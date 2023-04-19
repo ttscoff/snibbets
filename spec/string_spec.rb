@@ -44,10 +44,10 @@ RSpec.describe Snibbets do
   EOSTRING3
 
   describe '.replace_blocks' do
-    it 'detects 3 indented blocks' do
+    it 'detects 3 indented blocks and block quote' do
       Snibbets.options[:include_blockquotes] = true
       _, blocks = string1.replace_blocks
-      expect(blocks.count).to eq(4)
+      expect(string1.blocks).to eq(4)
     end
   end
 
@@ -56,10 +56,20 @@ RSpec.describe Snibbets do
       sections = string2.snippets
       expect(sections.count).to eq(2)
     end
+  end
 
-    it 'detects no snippets' do
-      sections = string3.snippets
-      expect(sections.count).to eq(0)
+  describe '.blocks' do
+    it 'detects 3 blocks' do
+      Snibbets.options[:include_blockquotes] = false
+      expect(string1.blocks).to eq(3)
+    end
+
+    it 'detects 2 blocks' do
+      expect(string2.blocks).to eq(2)
+    end
+
+    it 'detects no blocks' do
+      expect(string3.blocks).to eq(0)
     end
   end
 
