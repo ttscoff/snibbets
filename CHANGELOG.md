@@ -1,3 +1,11 @@
+### 2.0.30
+
+2023-04-19 05:51
+
+#### NEW
+
+- NEW: Added `--notes` option and accompanying `all_notes` config option to allow display of all notes instead of just code blocks in each snippet
+
 ### 2.0.29
 
 2023-04-18 10:45
