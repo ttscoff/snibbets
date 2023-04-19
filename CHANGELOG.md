@@ -2,94 +2,29 @@
 
 2023-04-18 10:45
 
-#### NEW
-
-- `--nvultra` will open the selected snippet in nvUltra
-
 #### IMPROVED
 
-- Use Readline for entering info with `--paste`, allows for better editing experience
-- Allow `--edit` with `--paste` to open the new snippet in your editor immediately
 - Better removal of extra leading/trailing newlines
 
 #### FIXED
 
-- Code indentation with `--paste`
-- Nil error when highlighting without extension
-- When detecting indented code blocks, require a blank line (or start of file) before them, to avoid picking up lines within indented lists
 - Selecting 'All snippets' could return blank results in some cases
 
 ### 2.0.28
 
 2023-04-18 09:18
 
-#### NEW
-
-- `--nvultra` will open the selected snippet in nvUltra
-
-#### IMPROVED
-
-- Use Readline for entering info with `--paste`, allows for better editing experience
-- Allow `--edit` with `--paste` to open the new snippet in your editor immediately
-
 #### FIXED
 
-- Code indentation with `--paste`
-- Nil error when highlighting without extension
 - When detecting indented code blocks, require a blank line (or start of file) before them, to avoid picking up lines within indented lists
-
-### 2.0.27
-
-2023-04-17 15:54
-
-#### NEW
-
-- `--nvultra` will open the selected snippet in nvUltra
-
-#### IMPROVED
-
-- Use Readline for entering info with `--paste`, allows for better editing experience
-- Allow `--edit` with `--paste` to open the new snippet in your editor immediately
-
-#### FIXED
-
-- Code indentation with `--paste`
-- Nil error when highlighting without extension
 
 ### 2.0.26
 
 2023-04-16 11:18
 
-#### NEW
-
-- `--nvultra` will open the selected snippet in nvUltra
-
-#### IMPROVED
-
-- Use Readline for entering info with `--paste`, allows for better editing experience
-- Allow `--edit` with `--paste` to open the new snippet in your editor immediately
-
 #### FIXED
 
-- Code indentation with `--paste`
 - Nil error when highlighting without extension
-
-### 2.0.25
-
-2023-04-16 11:09
-
-#### NEW
-
-- `--nvultra` will open the selected snippet in nvUltra
-
-#### IMPROVED
-
-- Use Readline for entering info with `--paste`, allows for better editing experience
-- Allow `--edit` with `--paste` to open the new snippet in your editor immediately
-
-#### FIXED
-
-- Code indentation with `--paste`
 
 ### 2.0.24
 
