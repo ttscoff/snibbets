@@ -14,9 +14,7 @@ module Snibbets
       def remove_items_without_query(filename, res, query)
         q = find_query_in_options(filename, res, query).split(/ /)
         res.delete_if do |opt|
-          q.none? do |word|
-            "#{filename} #{opt['title']}" =~ /#{word}/i
-          end
+          q.none? { |word| "#{filename} #{opt['title']}" =~ /#{word}/i }
         end
         res
       end
@@ -28,16 +26,14 @@ module Snibbets
         end
 
         if res.count.zero?
-          warn 'No matches found'
+          warn 'No matches found' if Snibbets.options[:interactive]
           Process.exit 1
         end
 
         options = res.map { |m| m['title'] }
 
         puts title
-        args = [
-          "--height=#{options.count}"
-        ]
+        args = ["--height=#{options.count}"]
         selection = `echo #{Shellwords.escape(options.join("\n"))} | #{executable} filter #{args.join(' ')}`.strip
         Process.exit 1 if selection.empty?
 
@@ -82,7 +78,7 @@ module Snibbets
         end
 
         if res.count.zero?
-          warn 'No matches found'
+          warn 'No matches found' if Snibbets.options[:interactive]
           Process.exit 1
         end
 

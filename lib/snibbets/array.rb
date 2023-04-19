@@ -17,7 +17,7 @@ module Snibbets
 
       in_leader = true
       each do |line|
-        if (line =~ /^\s*$/ || line.empty?) && in_leader
+        if (line.strip.empty?) && in_leader
           next
         else
           in_leader = false

@@ -16,6 +16,10 @@ module Snibbets
       replace remove_spotlight_tags
     end
 
+    def strip_empty
+      split(/\n/).strip_empty.join("\n")
+    end
+
     def remove_meta
       input = dup
       lines = input.split(/\n/)
@@ -57,7 +61,7 @@ module Snibbets
 
       # if it's a fenced code block, just discard the fence and everything
       # outside it
-      if block.fenced?
+      if block.fenced? && !Snibbets.options[:all_notes]
         code_blocks = block.scan(/(`{3,})(\w+)?\s*\n(.*?)\n\1/m)
         code_blocks.map! { |b| b[2].strip }
         return code_blocks.join("\n\n")
@@ -86,28 +90,15 @@ module Snibbets
 
       indent = code[0].match(/^( {4,}|\t+)(?=\S)/)
 
-      if indent
-        code.map! { |line| line.sub(/(?mi)^#{indent[1]}/, '') }.join("\n")
-      else
-        self
-      end
+      return self if indent.nil?
+
+      code.map! { |line| line.sub(/(?mi)^#{indent[1]}/, '') }.join("\n")
     end
 
-    # Returns an array of snippets. Single snippets are returned without a
-    # title, multiple snippets get titles from header lines
-    def snippets
-      content = dup.remove_meta
-      # If there's only one snippet, just clean it and return
-      # return [{ 'title' => '', 'code' => content.clean_code.strip }] unless multiple?
-
-      # Split content by ATX headers. Everything on the line after the #
-      # becomes the title, code is gleaned from text between that and the
-      # next ATX header (or end)
-      sections = []
+    def replace_blocks
+      sans_blocks = dup
       counter = 0
       code_blocks = {}
-
-      sans_blocks = content.dup
 
       if Snibbets.options[:include_blockquotes]
         sans_blocks = sans_blocks.gsub(/(?mi)(^(>.*?)(\n|$))+/) do
@@ -125,7 +116,7 @@ module Snibbets
         "<block#{counter}>\n"
       end
 
-      sans_blocks = sans_blocks.gsub(/(?mi)^((?: {4,}|\t+)\S[\S\s]*?)(?=\n\S|\Z)/) do
+      sans_blocks = sans_blocks.gsub(/(?mi)(?<=\n\n|\A)\n?((?: {4,}|\t+)\S[\S\s]*?)(?=\n\S|\Z)/) do
         counter += 1
         code = Regexp.last_match(1).split(/\n/)
 
@@ -133,45 +124,76 @@ module Snibbets
         "<block#{counter}>\n"
       end
 
-      content = []
-      if sans_blocks =~ /<block\d+>/
-        sans_blocks.each_line do |line|
-          content << line if line =~ /^#/ || line =~ /<block\d+>/
-        end
+      [sans_blocks, code_blocks]
+    end
 
-        parts = content.join("\n").split(/^#+/)
-      else
-        parts = sans_blocks.gsub(/\n{2,}/, "\n\n").split(/^#+/)
+    def parse_lang_marker(block)
+      lang = nil
+      if block =~ /<lang:(.*?)>/
+        lang = Regexp.last_match(1)
+        block = block.gsub(/<lang:.*?>\n+/, '').strip_empty
       end
 
-      # parts.shift if parts.count > 1
+      [lang, block]
+    end
+
+    def restore_blocks(parts, code_blocks)
+      sections = []
 
       parts.each do |part|
         lines = part.split(/\n/).strip_empty
+        next if lines.blocks.zero?
 
-        next if lines.blocks == 0
+        title = lines.count > 1 && lines[0] !~ /<block\d+>/ ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
 
-        title = lines.count > 1 ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
-        block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
+        block = if Snibbets.options[:all_notes]
+                  lines.join("\n").gsub(/<(block\d+)>/) { "\n```\n#{code_blocks[Regexp.last_match(1)].strip_empty}\n```" }
+                else
+                  lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)].strip_empty }
+                end
 
-        lang = nil
-        if block =~ /<lang:(.*?)>/
-          lang = Regexp.last_match(1)
-          block.gsub!(/<lang:.*?>\n/, '')
-        end
+        # block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
 
+        lang, block = parse_lang_marker(block)
         code = block.clean_code
 
         next unless code && !code.empty?
 
         sections << {
           'title' => title,
-          'code' => code,
+          'code' => code.strip_empty,
           'language' => lang
         }
       end
 
       sections
+    end
+
+    # Returns an array of snippets. Single snippets are returned without a
+    # title, multiple snippets get titles from header lines
+    def snippets
+      content = dup.remove_meta
+      # If there's only one snippet, just clean it and return
+      # return [{ 'title' => '', 'code' => content.clean_code.strip }] unless multiple?
+
+      # Split content by ATX headers. Everything on the line after the #
+      # becomes the title, code is gleaned from text between that and the
+      # next ATX header (or end)
+      sans_blocks, code_blocks = content.replace_blocks
+
+      parts = if Snibbets.options[:all_notes]
+                sans_blocks.split(/^#+/)
+              elsif sans_blocks =~ /<block\d+>/
+                sans_blocks.split(/\n/).each_with_object([]) do |line, arr|
+                  arr << line if line =~ /^#/ || line =~ /<block\d+>/
+                end.join("\n").split(/^#+/)
+              else
+                sans_blocks.gsub(/\n{2,}/, "\n\n").split(/^#+/)
+              end
+
+      # parts.shift if parts.count > 1
+
+      restore_blocks(parts, code_blocks)
     end
   end
 end

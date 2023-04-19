@@ -153,7 +153,7 @@ module Snibbets
     end
 
     def new_snippet_from_clipboard
-      return false unless $stdin.isatty
+      return false unless $stdout.isatty
 
       trap('SIGINT') do
         Howzit.console.info "\nCancelled"
@@ -248,7 +248,7 @@ module Snibbets
       else
         filepath = nil
         if results.empty?
-          warn 'No results'
+          warn 'No results' if Snibbets.options[:interactive]
           Process.exit 0
         elsif results.length == 1 || !Snibbets.options[:interactive]
           filepath = results[0]['path']
@@ -272,7 +272,7 @@ module Snibbets
         snippets = input.snippets
 
         if snippets.empty?
-          warn 'No snippets found'
+          warn 'No snippets found' if Snibbets.options[:interactive]
           Process.exit 0
         elsif snippets.length == 1 || !Snibbets.options[:interactive]
           if Snibbets.options[:output] == 'json'
@@ -280,8 +280,11 @@ module Snibbets
           else
             snippets.each do |snip|
               header = File.basename(filepath, '.md')
-              warn header
-              warn '-' * header.length
+              if $stdout.isatty
+                puts header
+                puts '-' * header.length
+                puts ''
+              end
               code = snip['code']
               lang = snip['language']
               print(code, filepath, lang)
@@ -289,52 +292,59 @@ module Snibbets
           end
         elsif snippets.length > 1
           if Snibbets.options[:all]
-            if Snibbets.options[:output] == 'json'
-              print(snippets.to_json, filepath)
-            else
-
-              snippets.each do |snippet|
-                lang = snippet['language']
-                warn "### #{snippet['title']} ###"
-                # warn "# #{'-' * snippet['title'].length}"
-                print(snippet['code'], filepath, lang)
-                puts
-              end
-            end
+            print_all(snippets, filepath)
           else
-            snippets.push({ 'title' => 'All snippets', 'code' => '' })
-
-            answer = Menu.menu(snippets, filename: File.basename(filepath, '.md'), title: 'Select snippet', query: @query)
-
-            if answer['title'] == 'All snippets'
-              snippets.delete_if { |s| s['title'] == 'All snippets' }
-              if Snibbets.options[:output] == 'json'
-                print(snippets.to_json, filepath)
-              else
-                header = File.basename(filepath, '.md')
-                warn header
-                warn '=' * header.length
-
-                snippets.each do |snippet|
-                  lang = snippet['language']
-                  warn "### #{snippet['title']} ###"
-                  # warn "# #{'-' * snippet['title'].length}"
-                  print(snippet['code'], filepath, lang)
-                  puts
-                end
-
-              end
-            elsif Snibbets.options[:output] == 'json'
-              print(answer.to_json, filepath)
-            else
-              header = "#{File.basename(filepath, '.md')}: #{answer['title']}"
-              warn header
-              warn '-' * header.length
-              code = answer['code']
-              lang = answer['language']
-              print(code, filepath, lang)
-            end
+            select_snippet(snippets, filepath)
           end
+        end
+      end
+    end
+
+    def select_snippet(snippets, filepath)
+      snippets.push({ 'title' => 'All snippets', 'code' => '' })
+      answer = Menu.menu(snippets.dup, filename: File.basename(filepath, '.md'), title: 'Select snippet', query: @query)
+
+      if answer['title'] == 'All snippets'
+        snippets.delete_if { |s| s['title'] == 'All snippets' }
+        if Snibbets.options[:output] == 'json'
+          print(snippets.to_json, filepath)
+        else
+          if $stdout.isatty
+            header = File.basename(filepath, '.md')
+            warn header
+            warn '=' * header.length
+            warn ''
+          end
+          print_all(snippets, filepath)
+        end
+      elsif Snibbets.options[:output] == 'json'
+        print(answer.to_json, filepath)
+      else
+        if $stdout.isatty
+          header = "#{File.basename(filepath, '.md')}: #{answer['title']}"
+          warn header
+          warn '-' * header.length
+          warn ''
+        end
+        code = answer['code']
+        lang = answer['language']
+        print(code, filepath, lang)
+      end
+    end
+
+    def print_all(snippets, filepath)
+      if Snibbets.options[:output] == 'json'
+        print(snippets.to_json, filepath)
+      else
+
+        snippets.each do |snippet|
+          lang = snippet['language']
+
+          puts "### #{snippet['title']} ###"
+          puts ''
+
+          print(snippet['code'], filepath, lang)
+          puts
         end
       end
     end
