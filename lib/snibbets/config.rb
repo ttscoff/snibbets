@@ -14,6 +14,7 @@ module Snibbets
 
     DEFAULT_OPTIONS = {
       all: false,
+      all_notes: false,
       copy: false,
       editor: nil,
       extension: 'md',

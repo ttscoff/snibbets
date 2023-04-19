@@ -127,45 +127,27 @@ module Snibbets
       [sans_blocks, code_blocks]
     end
 
-    # Returns an array of snippets. Single snippets are returned without a
-    # title, multiple snippets get titles from header lines
-    def snippets
-      content = dup.remove_meta
-      # If there's only one snippet, just clean it and return
-      # return [{ 'title' => '', 'code' => content.clean_code.strip }] unless multiple?
-
-      # Split content by ATX headers. Everything on the line after the #
-      # becomes the title, code is gleaned from text between that and the
-      # next ATX header (or end)
-      sections = []
-
-      sans_blocks, code_blocks = content.replace_blocks
-
-      content = []
-      if sans_blocks =~ /<block\d+>/
-        sans_blocks.each_line do |line|
-          content << line if line =~ /^#/ || line =~ /<block\d+>/
-        end
-
-        parts = content.join("\n").split(/^#+/)
-      else
-        parts = sans_blocks.gsub(/\n{2,}/, "\n\n").split(/^#+/)
+    def parse_lang_marker(block)
+      lang = nil
+      if block =~ /<lang:(.*?)>/
+        lang = Regexp.last_match(1)
+        block = block.gsub(/<lang:.*?>\n/, '')
       end
 
-      # parts.shift if parts.count > 1
+      [lang, block]
+    end
+
+    def restore_blocks(parts, code_blocks)
+      sections = []
 
       parts.each do |part|
         lines = part.split(/\n/).strip_empty
-        next if lines.blocks == 0
+        next if lines.blocks.zero?
 
         title = lines.count > 1 && lines[0] !~ /<block\d+>/ ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
         block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
 
-        lang = nil
-        if block =~ /<lang:(.*?)>/
-          lang = Regexp.last_match(1)
-          block.gsub!(/<lang:.*?>\n/, '')
-        end
+        lang, block = parse_lang_marker(block)
 
         code = block.clean_code
 
@@ -179,6 +161,33 @@ module Snibbets
       end
 
       sections
+    end
+
+    # Returns an array of snippets. Single snippets are returned without a
+    # title, multiple snippets get titles from header lines
+    def snippets
+      content = dup.remove_meta
+      # If there's only one snippet, just clean it and return
+      # return [{ 'title' => '', 'code' => content.clean_code.strip }] unless multiple?
+
+      # Split content by ATX headers. Everything on the line after the #
+      # becomes the title, code is gleaned from text between that and the
+      # next ATX header (or end)
+      sans_blocks, code_blocks = content.replace_blocks
+
+      parts = if Snibbets.options[:all_notes]
+                sans_blocks.split(/^#+/)
+              elsif sans_blocks =~ /<block\d+>/
+                sans_blocks.split(/\n/).each_with_object([]) do |line, arr|
+                  arr << line if line =~ /^#/ || line =~ /<block\d+>/
+                end.join("\n").split(/^#+/)
+              else
+                sans_blocks.gsub(/\n{2,}/, "\n\n").split(/^#+/)
+              end
+
+      # parts.shift if parts.count > 1
+
+      restore_blocks(parts, code_blocks)
     end
   end
 end

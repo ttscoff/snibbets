@@ -46,6 +46,10 @@ module Snibbets
           options[:name_only] = v
         end
 
+        opts.on('--[no-]notes', 'Display the full content of the snippet') do |v|
+          options[:all_notes] = v
+        end
+
         opts.on('-o', '--output FORMAT', 'Output format (json|launchbar|*raw)') do |outformat|
           valid = %w[json launchbar lb raw]
           if outformat.downcase =~ /(launchbar|lb)/
