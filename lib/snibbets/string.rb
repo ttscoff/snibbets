@@ -47,6 +47,16 @@ module Snibbets
       count > 1 && count.even?
     end
 
+    # Return array of fenced code blocks
+    def fences
+      return [] unless fenced?
+
+      rx = /(?mi)^(?<fence>`{3,})(?<lang> *\S+)? *\n(?<code>[\s\S]*?)\n\k<fence> *(?=\n|\Z)/
+      matches = []
+      scan(rx) { matches << Regexp.last_match }
+      matches.each_with_object([]) { |m, fenced| fenced.push({ code: m['code'], lang: m['lang'] }) }
+    end
+
     def indented?
       self =~ /^( {4,}|\t+)/
     end
@@ -146,16 +156,19 @@ module Snibbets
 
         title = lines.count > 1 && lines[0] !~ /<block\d+>/ ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
 
-        block = if Snibbets.options[:all_notes]
-                  lines.join("\n").gsub(/<(block\d+)>/) { "\n```\n#{code_blocks[Regexp.last_match(1)].strip_empty}\n```" }
+        block = if Snibbets.options[:all_notes] || lines.blocks > 1
+                  lines.join("\n").gsub(/<(block\d+)>/) do
+                    code = code_blocks[Regexp.last_match(1)].strip_empty
+                    lang, code = parse_lang_marker(code)
+                    "\n```#{lang}\n#{code.strip}\n```"
+                  end
                 else
                   lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)].strip_empty }
                 end
 
         # block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
 
-        lang, block = parse_lang_marker(block)
-        code = block.clean_code
+        lang, code = parse_lang_marker(block)
 
         next unless code && !code.empty?
 
