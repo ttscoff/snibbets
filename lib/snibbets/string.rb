@@ -61,7 +61,7 @@ module Snibbets
 
       # if it's a fenced code block, just discard the fence and everything
       # outside it
-      if block.fenced?
+      if block.fenced? && !Snibbets.options[:all_notes]
         code_blocks = block.scan(/(`{3,})(\w+)?\s*\n(.*?)\n\1/m)
         code_blocks.map! { |b| b[2].strip }
         return code_blocks.join("\n\n")
@@ -131,7 +131,7 @@ module Snibbets
       lang = nil
       if block =~ /<lang:(.*?)>/
         lang = Regexp.last_match(1)
-        block = block.gsub(/<lang:.*?>\n/, '')
+        block = block.gsub(/<lang:.*?>\n+/, '').strip_empty
       end
 
       [lang, block]
@@ -145,10 +145,16 @@ module Snibbets
         next if lines.blocks.zero?
 
         title = lines.count > 1 && lines[0] !~ /<block\d+>/ ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
-        block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
+
+        block = if Snibbets.options[:all_notes]
+                  lines.join("\n").gsub(/<(block\d+)>/) { "\n```\n#{code_blocks[Regexp.last_match(1)].strip_empty}\n```" }
+                else
+                  lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)].strip_empty }
+                end
+
+        # block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
 
         lang, block = parse_lang_marker(block)
-
         code = block.clean_code
 
         next unless code && !code.empty?

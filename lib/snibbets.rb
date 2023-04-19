@@ -153,7 +153,7 @@ module Snibbets
     end
 
     def new_snippet_from_clipboard
-      return false unless $stdin.isatty
+      return false unless $stdout.isatty
 
       trap('SIGINT') do
         Howzit.console.info "\nCancelled"
@@ -248,7 +248,7 @@ module Snibbets
       else
         filepath = nil
         if results.empty?
-          warn 'No results'
+          warn 'No results' if Snibbets.options[:interactive]
           Process.exit 0
         elsif results.length == 1 || !Snibbets.options[:interactive]
           filepath = results[0]['path']
@@ -272,7 +272,7 @@ module Snibbets
         snippets = input.snippets
 
         if snippets.empty?
-          warn 'No snippets found'
+          warn 'No snippets found' if Snibbets.options[:interactive]
           Process.exit 0
         elsif snippets.length == 1 || !Snibbets.options[:interactive]
           if Snibbets.options[:output] == 'json'
@@ -280,9 +280,11 @@ module Snibbets
           else
             snippets.each do |snip|
               header = File.basename(filepath, '.md')
-              warn header
-              warn '-' * header.length
-              warn ''
+              if $stdout.isatty
+                puts header
+                puts '-' * header.length
+                puts ''
+              end
               code = snip['code']
               lang = snip['language']
               print(code, filepath, lang)
@@ -307,19 +309,23 @@ module Snibbets
         if Snibbets.options[:output] == 'json'
           print(snippets.to_json, filepath)
         else
-          header = File.basename(filepath, '.md')
-          warn header
-          warn '=' * header.length
-          warn ''
+          if $stdout.isatty
+            header = File.basename(filepath, '.md')
+            warn header
+            warn '=' * header.length
+            warn ''
+          end
           print_all(snippets, filepath)
         end
       elsif Snibbets.options[:output] == 'json'
         print(answer.to_json, filepath)
       else
-        header = "#{File.basename(filepath, '.md')}: #{answer['title']}"
-        warn header
-        warn '-' * header.length
-        warn ''
+        if $stdout.isatty
+          header = "#{File.basename(filepath, '.md')}: #{answer['title']}"
+          warn header
+          warn '-' * header.length
+          warn ''
+        end
         code = answer['code']
         lang = answer['language']
         print(code, filepath, lang)
@@ -333,9 +339,10 @@ module Snibbets
 
         snippets.each do |snippet|
           lang = snippet['language']
-          warn "### #{snippet['title']} ###"
-          warn ''
-          # warn "# #{'-' * snippet['title'].length}"
+
+          puts "### #{snippet['title']} ###"
+          puts ''
+
           print(snippet['code'], filepath, lang)
           puts
         end
