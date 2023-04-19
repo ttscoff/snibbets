@@ -1,10 +1,14 @@
 ### 2.0.30
 
-2023-04-19 05:52
+2023-04-19 06:44
 
 #### NEW
 
 - Added `--notes` option and accompanying `all_notes` config option to allow display of all notes instead of just code blocks in each snippet
+
+#### IMPROVED
+
+- Previously if multiple snippets were output, titles of snippets would go to STDERR so they weren't copied. Now they go to STDOUT as well.
 
 ### 2.0.29
 

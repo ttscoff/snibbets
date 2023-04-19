@@ -102,6 +102,8 @@ Set the `source` key to the folder where you keep your Markdown snippets. Option
 
 The `all` setting determines how Snibbets handles files containing multiple snippets. If `all` is true, then it will always display every snippet in the selected file. If false, it will offer a menu and let you choose which snippet to display. You can use `--all` on the command line to just enable this once.
 
+By default, Snibbets displays only the code from each snippet (and optionally block quotes, see below). If you set `all_notes` to true, then the full content of each snippet containing a code block will be returned, allowing you to see additional notes on the command line. This can be toggled at runtime with `--notes` or `--no-notes`.
+
 The `copy` setting determines whether the output is copied to the clipboard in addition to being displayed on STDOUT. This is the equivalent of running `snibbets QUERY | pbcopy` (macOS) or `snibbets QUERY | xclip` (Linux). This can be enabled for just one run with `--copy` on the command line. Setting it to true in the config will copy to the clipboard every time a snippet is displayed. On Mac this will work automatically, on Windows/Linux you may need to [install `xclip` or `xsel`][xclip].
 
 [xclip]: https://ostechnix.com/access-clipboard-contents-using-xclip-and-xsel-in-linux/
@@ -157,13 +159,14 @@ Snibbet's implementation of Skylighting has limited but better-looking themes, a
 ### Usage
 
 ```
-Snibbets v2.0.29
+Snibbets v2.0.30
 
 Usage: snibbets [options] query
     -a, --all                        If a file contains multiple snippets, output all of them (no menu)
     -c, --[no-]copy                  Copy the output to the clibpoard (also displays on STDOUT)
     -e, --edit                       Open the selected snippet in your configured editor
     -n, --[no-]name-only             Only search file names, not content
+        --[no-]notes                 Display the full content of the snippet
     -o, --output FORMAT              Output format (json|launchbar|*raw)
     -p, --paste, --new               Interactively create a new snippet from clipboard contents (Mac only)
     -q, --quiet                      Skip menus and display first match
