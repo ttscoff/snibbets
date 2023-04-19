@@ -45,14 +45,16 @@ module Snibbets
         content = code.dup
 
         content.fences.each do |f|
-          code.sub!(/#{Regexp.escape(f[:code])}/, highlight(f[:code], filename, f[:lang] || syntax))
+          code.sub!(/#{Regexp.escape(f[:code])}/, highlight(f[:code], filename, f[:lang] || syntax).strip)
         end
 
         Snibbets.options[:all_notes] ? code : code.clean_code
       end
 
       def highlight(code, filename, syntax, theme = nil)
-        return code unless $stdout.isatty
+        unless $stdout.isatty
+          return Snibbets.options[:all_notes] && code.replace_blocks[0].notes? ? code : code.clean_code
+        end
 
         return highlight_fences(code, filename, syntax) if code.fenced?
 
