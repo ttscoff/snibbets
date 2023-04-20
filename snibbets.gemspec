@@ -27,9 +27,9 @@ Gem::Specification.new do |spec|
   spec.bindir = "bin"
   spec.executables << 'snibbets'
 
-  spec.files = Dir["lib/**/*.rb"].reject { |f| f.end_with?("_spec.rb") }
-  spec.files += Dir["lib/themes/*.theme"]
-  spec.files += Dir["[A-Z]*"]
+  spec.files = Dir.chdir(File.expand_path('..', __FILE__)) do
+    `git ls-files -z`.split("\x0").reject { |f| f.strip =~ %r{^((test|spec|features)/|\.git|buildnotes|.*\.taskpaper)} }
+  end
 
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "awesome_print", "~> 1.9"

@@ -116,7 +116,6 @@ module Snibbets
       notebook = Snibbets.options[:source].gsub(/ /, '%20')
       note = ERB::Util.url_encode(File.basename(filepath, '.md'))
       url = "x-nvultra://open?notebook=#{notebook}&note=#{note}"
-      puts url
       `open '#{url}'`
     end
 
