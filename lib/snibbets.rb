@@ -352,7 +352,7 @@ module Snibbets
       if Snibbets.options[:highlight] && Snibbets.options[:output] == 'raw'
         $stdout.puts(Highlight.highlight(output, filepath, syntax))
       else
-        $stdout.puts(output)
+        $stdout.puts(Snibbets.options[:all_notes] ? output : output.clean_code)
       end
       if Snibbets.options[:copy]
         OS.copy(output)

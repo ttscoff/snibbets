@@ -45,10 +45,12 @@ module Snibbets
         content = code.dup
 
         content.fences.each do |f|
-          code.sub!(/#{Regexp.escape(f[:code].gsub(%r{k<}, 'k\<'))}/, highlight(f[:code], filename, f[:lang] || syntax).strip)
+          rx = Regexp.new(Regexp.escape(f[:code]))
+          highlighted = highlight(f[:code].gsub(/\\k</, '\k\<'), filename, f[:lang] || syntax).strip
+          code.sub!(/#{rx}/, highlighted)
         end
 
-        Snibbets.options[:all_notes] ? code : code.clean_code
+        Snibbets.options[:all_notes] ? code.gsub(/k\\</, 'k<') : code.gsub(/k\\</, 'k<').clean_code
       end
 
       def highlight(code, filename, syntax, theme = nil)
