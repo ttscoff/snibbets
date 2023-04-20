@@ -56,7 +56,7 @@ module Snibbets
     end
 
     def notes?
-      split("\n").notes.positive?
+      replace_blocks[0].split("\n").notes.positive?
     end
 
     # Return array of fenced code blocks
