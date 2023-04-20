@@ -4,6 +4,10 @@ module Snibbets
       select { |el| el =~ /^<block\d+>$/ }.count
     end
 
+    def notes
+      select { |el| el !~ /^<block\d+>$/ && el !~ /^```/ && !el.strip.empty? }.count
+    end
+
     def strip_empty
       remove_leading_empty_elements.remove_trailing_empty_elements
     end

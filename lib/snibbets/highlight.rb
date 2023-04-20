@@ -41,8 +41,24 @@ module Snibbets
         # `echo #{Shellwords.escape(code)} | #{executable} #{theme}--syntax #{syntax}`
       end
 
+      def highlight_fences(code, filename, syntax)
+        content = code.dup
+
+        content.fences.each do |f|
+          rx = Regexp.new(Regexp.escape(f[:code]))
+          highlighted = highlight(f[:code].gsub(/\\k</, '\k\<'), filename, f[:lang] || syntax).strip
+          code.sub!(/#{rx}/, highlighted)
+        end
+
+        Snibbets.options[:all_notes] ? code.gsub(/k\\</, 'k<') : code.gsub(/k\\</, 'k<').clean_code
+      end
+
       def highlight(code, filename, syntax, theme = nil)
-        return code unless $stdout.isatty
+        unless $stdout.isatty
+          return Snibbets.options[:all_notes] && code.replace_blocks[0].notes? ? code : code.clean_code
+        end
+
+        return highlight_fences(code, filename, syntax) if code.fenced?
 
         theme ||= Snibbets.options[:highlight_theme] || 'monokai'
         syntax ||= Lexers.syntax_from_extension(filename)

@@ -47,6 +47,28 @@ module Snibbets
       count > 1 && count.even?
     end
 
+    def blocks
+      replace_blocks[1].count
+    end
+
+    def blocks?
+      blocks.positive?
+    end
+
+    def notes?
+      replace_blocks[0].split("\n").notes.positive?
+    end
+
+    # Return array of fenced code blocks
+    def fences
+      return [] unless fenced?
+
+      rx = /(?mi)^(?<fence>`{3,})(?<lang> *\S+)? *\n(?<code>[\s\S]*?)\n\k<fence> *(?=\n|\Z)/
+      matches = []
+      scan(rx) { matches << Regexp.last_match }
+      matches.each_with_object([]) { |m, fenced| fenced.push({ code: m['code'], lang: m['lang'] }) }
+    end
+
     def indented?
       self =~ /^( {4,}|\t+)/
     end
@@ -61,7 +83,7 @@ module Snibbets
 
       # if it's a fenced code block, just discard the fence and everything
       # outside it
-      if block.fenced? && !Snibbets.options[:all_notes]
+      if block.fenced?
         code_blocks = block.scan(/(`{3,})(\w+)?\s*\n(.*?)\n\1/m)
         code_blocks.map! { |b| b[2].strip }
         return code_blocks.join("\n\n")
@@ -142,22 +164,28 @@ module Snibbets
 
       parts.each do |part|
         lines = part.split(/\n/).strip_empty
-        next if lines.blocks.zero?
 
-        title = lines.count > 1 && lines[0] !~ /<block\d+>/ ? lines.shift.strip.sub(/[.:]$/, '') : 'Default snippet'
+        notes = part.notes?
 
-        block = if Snibbets.options[:all_notes]
-                  lines.join("\n").gsub(/<(block\d+)>/) { "\n```\n#{code_blocks[Regexp.last_match(1)].strip_empty}\n```" }
+        next if lines.blocks.zero? && !notes
+
+        title = if lines.count > 1 && lines[0] !~ /<block\d+>/ && lines[0] =~ /^ +/
+                  lines.shift.strip.sub(/[.:]$/, '')
                 else
-                  lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)].strip_empty }
+                  'Default snippet'
                 end
 
-        # block = lines.join("\n").gsub(/<(block\d+)>/) { code_blocks[Regexp.last_match(1)] }
+        block = lines.join("\n").gsub(/<(block\d+)>/) do
+          code = code_blocks[Regexp.last_match(1)].strip_empty
+          lang, code = parse_lang_marker(code)
+          "\n```#{lang}\n#{code.strip}\n```"
+        end
 
-        lang, block = parse_lang_marker(block)
-        code = block.clean_code
+        lang, code = parse_lang_marker(block)
 
         next unless code && !code.empty?
+
+        # code = code.clean_code unless notes || code.fences.count > 1
 
         sections << {
           'title' => title,

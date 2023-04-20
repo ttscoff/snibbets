@@ -1,3 +1,17 @@
+### 2.0.31
+
+2023-04-20 10:20
+
+#### IMPROVED
+
+- Syntax highlight blocks individually, so multiple languages can exist within one snippet
+- If outputting notes, wrap code in backticks to differentiate
+
+#### FIXED
+
+- Handle cases where snippet contains `\k<name>` and breaks regex replacement even with Regexp.escape
+- Remove fences from single snippet when not syntax highlighting
+
 ### 2.0.30
 
 2023-04-19 06:44

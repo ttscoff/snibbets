@@ -116,7 +116,6 @@ module Snibbets
       notebook = Snibbets.options[:source].gsub(/ /, '%20')
       note = ERB::Util.url_encode(File.basename(filepath, '.md'))
       url = "x-nvultra://open?notebook=#{notebook}&note=#{note}"
-      puts url
       `open '#{url}'`
     end
 
@@ -353,7 +352,7 @@ module Snibbets
       if Snibbets.options[:highlight] && Snibbets.options[:output] == 'raw'
         $stdout.puts(Highlight.highlight(output, filepath, syntax))
       else
-        $stdout.puts(output)
+        $stdout.puts(Snibbets.options[:all_notes] ? output : output.clean_code)
       end
       if Snibbets.options[:copy]
         OS.copy(output)
