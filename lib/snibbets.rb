@@ -286,6 +286,7 @@ module Snibbets
               end
               code = snip['code']
               lang = snip['language']
+
               print(code, filepath, lang)
             end
           end
@@ -349,14 +350,14 @@ module Snibbets
     end
 
     def print(output, filepath, syntax = nil)
+      if Snibbets.options[:copy]
+        OS.copy(Snibbets.options[:all_notes] ? output : output.clean_code)
+        warn 'Copied to clipboard'
+      end
       if Snibbets.options[:highlight] && Snibbets.options[:output] == 'raw'
         $stdout.puts(Highlight.highlight(output, filepath, syntax))
       else
         $stdout.puts(Snibbets.options[:all_notes] ? output : output.clean_code)
-      end
-      if Snibbets.options[:copy]
-        OS.copy(output)
-        $stderr.puts "Copied to clipboard"
       end
     end
   end
