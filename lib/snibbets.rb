@@ -12,6 +12,7 @@ require 'tty-reader'
 require 'tty-which'
 require 'yaml'
 require_relative 'snibbets/version'
+require_relative 'snibbets/colors'
 require_relative 'snibbets/config'
 require_relative 'snibbets/which'
 require_relative 'snibbets/string'
@@ -84,7 +85,7 @@ module Snibbets
             end
 
       if try == 2 && cmd.nil?
-        puts "No search method available on this system. Please install ripgrep, silver surfer, ack, or grep."
+        puts "{br}No search method available on this system. Please install ripgrep, silver surfer, ack, or grep.".x
         Process.exit 1
       end
 
@@ -138,14 +139,14 @@ module Snibbets
             editor = TTY::Which.which(editor)
             system %(#{editor} "#{filepath}") if editor
           else
-            puts "No editor configured, or editor is missing"
+            puts "{br}No editor configured, or editor is missing".x
             Process.exit 1
           end
         elsif TTY::Which.exist?(editor)
           editor = TTY::Which.which(editor)
           system %(#{editor} "#{filepath}") if editor
         else
-          puts "No editor configured, or editor is missing"
+          puts "{br}No editor configured, or editor is missing".x
           Process.exit 1
         end
       end
@@ -163,12 +164,12 @@ module Snibbets
       reader = TTY::Reader.new
 
       # printf 'What does this snippet do? '
-      input = reader.read_line('What does this snippet do? ').strip
+      input = reader.read_line('{by}What does this snippet do{bw}? '.x).strip
       # input = $stdin.gets.chomp
       title = input unless input.empty?
 
       # printf 'What language(s) does it use (separate with spaces, full names or file extensions will work)? '
-      input = reader.read_line('What language(s) does it use (separate with spaces, full names or file extensions will work)? ').strip
+      input = reader.read_line('{by}What language(s) does it use ({xw}separate with spaces, full names or file extensions{by}){bw}? '.x).strip
       # input = $stdin.gets.chomp
       langs = input.split(/ +/).map(&:strip) unless input.empty?
       exts = langs.map { |lang| Lexers.lang_to_ext(lang) }.delete_if(&:nil?)
@@ -176,7 +177,7 @@ module Snibbets
 
       exts = langs if exts.empty?
 
-      filename = "#{title}#{exts.map { |x| ".#{x}"}.join('')}.#{Snibbets.options[:extension]}"
+      filename = "#{title}#{exts.map { |x| ".#{x}" }.join('')}.#{Snibbets.options[:extension]}"
       filepath = File.join(File.expand_path(Snibbets.options[:source]), filename)
       File.open(filepath, 'w') do |f|
         f.puts "tags: #{tags.join(', ')}
@@ -186,7 +187,7 @@ module Snibbets
 ```"
       end
 
-      puts "New snippet written to #{filename}."
+      puts "{bg}New snippet written to {bw}#{filename}.".x
 
       open_snippet_in_editor(filepath) if Snibbets.arguments[:edit_snippet]
       open_snippet_in_nvultra(filepath) if Snibbets.arguments[:nvultra]

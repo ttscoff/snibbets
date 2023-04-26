@@ -12,12 +12,12 @@ module Snibbets
         os = RbConfig::CONFIG['target_os']
         case os
         when /darwin.*/i
-          `echo #{Shellwords.escape(text)} | pbcopy`
+          `echo #{Shellwords.escape(text.uncolor)} | pbcopy`
         else
           if TTY::Which.exist?('xclip')
-            `echo #{Shellwords.escape(text)} | xclip -sel c`
+            `echo #{Shellwords.escape(text.uncolor)} | xclip -sel c`
           elsif TTY::Which.exist('xsel')
-            `echo #{Shellwords.escape(text)} | xsel -ib`
+            `echo #{Shellwords.escape(text.uncolor)} | xsel -ib`
           else
             puts 'Copy not supported on this system, please install xclip or xsel.'
           end
