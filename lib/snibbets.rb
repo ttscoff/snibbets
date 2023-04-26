@@ -281,8 +281,8 @@ module Snibbets
             snippets.each do |snip|
               header = File.basename(filepath, '.md')
               if $stdout.isatty
-                puts header
-                puts '-' * header.length
+                puts "{bw}#{header}{x}".x
+                puts "{dw}#{'-' * header.length}{x}".x
                 puts ''
               end
               code = snip['code']
@@ -312,8 +312,8 @@ module Snibbets
         else
           if $stdout.isatty
             header = File.basename(filepath, '.md')
-            warn header
-            warn '=' * header.length
+            warn "{bw}#{header}{x}".x
+            warn "{dw}#{'=' * header.length}{x}".x
             warn ''
           end
           print_all(snippets, filepath)
@@ -322,7 +322,7 @@ module Snibbets
         print(answer.to_json, filepath)
       else
         if $stdout.isatty
-          header = "#{File.basename(filepath, '.md')}: #{answer['title']}"
+          header = "{bw}#{File.basename(filepath, '.md')}: {c}#{answer['title']}{x}".x
           warn header
           warn '-' * header.length
           warn ''
@@ -341,7 +341,7 @@ module Snibbets
         snippets.each do |snippet|
           lang = snippet['language']
 
-          puts "### #{snippet['title']} ###"
+          puts "{dw}### {xbw}#{snippet['title']} {xdw}### {x}".x
           puts ''
 
           print(snippet['code'], filepath, lang)

@@ -84,7 +84,7 @@ module Snibbets
       # if it's a fenced code block, just discard the fence and everything
       # outside it
       if block.fenced?
-        code_blocks = block.scan(/(`{3,})(\w+)?\s*\n(.*?)\n\1/m)
+        code_blocks = block.scan(/(`{3,})(\S+)?\s*\n(.*?)\n\1/m)
         code_blocks.map! { |b| b[2].strip }
         return code_blocks.join("\n\n")
       end

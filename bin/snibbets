@@ -117,7 +117,7 @@ module Snibbets
       if arguments[:save_config]
         config = Snibbets::Config.new
         config.write_config
-        puts "{bg}Configuration saved to {w}#{config.config_file}"
+        puts "{bg}Configuration saved to {w}#{config.config_file}".x
       end
 
       if arguments[:edit_config]
