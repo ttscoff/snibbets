@@ -1,3 +1,18 @@
+### 2.0.33
+
+2023-04-26 10:23
+
+#### IMPROVED
+
+- More coloring for prompts and messages
+- Colorize headers in multi-snippet output
+- If skylighting highlighting is enabled and the specified
+- Add some normalization for some skylighting lexers
+
+#### FIXED
+
+- Highlighting returns empty if language contains non-alphanumeric characters
+
 ### 2.0.32
 
 2023-04-25 17:14

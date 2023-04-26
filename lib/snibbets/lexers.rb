@@ -27,6 +27,15 @@ module Snibbets
         lex
       end
 
+      def skylight_lexer?(lexer)
+        SKYLIGHT_LEXERS_DB.split(/\n/).include?(lexer)
+      end
+
+      def normalize_lexer(lexer)
+        matches = LEXER_NORMALIZERS.select { |k, v| v.include? lexer }
+        matches.count.positive? ? matches.keys[0] : lexer
+      end
+
       def ext_to_lang(ext)
         return nil if ext.nil?
 

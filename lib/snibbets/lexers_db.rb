@@ -233,7 +233,7 @@ nsis, nsi, nsh [nsi, nsh]
 nusmv [smv]
 objdump [objdump]
 objective-c++, objectivec++, obj-c++, objc++ [mm, hh]
-objective-c, objectivec, obj-c, objc [m, h]
+objectivec, objective-c, obj-c, objc [m, h]
 objective-j, objectivej, obj-j, objj [j]
 ocaml [ml, mli, mll, mly]
 odin [odin]
@@ -377,3 +377,164 @@ bro [bro]
 zephir [zep]
 zig [zig]
 EOLEXERS
+
+SKYLIGHT_LEXERS_DB=<<EOSKYLEX
+abc
+asn1
+asp
+ats
+awk
+actionscript
+ada
+agda
+alert
+apache
+bash
+bibtex
+boo
+c
+cs
+cpp
+cmake
+css
+changelog
+clojure
+coffee
+coldfusion
+comments
+commonlisp
+curry
+d
+dtd
+default
+diff
+djangotemplate
+dockerfile
+doxygen
+doxygenlua
+eiffel
+elixir
+elm
+email
+erlang
+fsharp
+fortranfixed
+fortranfree
+gcc
+glsl
+gnuassembler
+m4
+go
+graphql
+groovy
+html
+hamlet
+haskell
+haxe
+ini
+isocpp
+idris
+fasm
+nasm
+j
+json
+jsp
+java
+javascript
+javascriptreact
+javadoc
+julia
+kotlin
+llvm
+latex
+lex
+lilypond
+literatecurry
+literatehaskell
+lua
+mips
+makefile
+markdown
+mathematica
+matlab
+maxima
+mediawiki
+metafont
+modelines
+modula2
+modula3
+monobasic
+mustache
+nim
+nix
+ocaml
+objectivec
+objectivecpp
+octave
+opencl
+orgmode
+php
+povray
+pascal
+perl
+pike
+postscript
+powershell
+prolog
+protobuf
+pure
+purebasic
+python
+qml
+r
+relaxng
+raku
+relaxngcompact
+roff
+ruby
+rhtml
+rust
+sass
+scss
+sgml
+sml
+spdxcomments
+sql
+sqlmysql
+sqlpostgresql
+scala
+scheme
+stan
+stata
+swift
+systemverilog
+toml
+tcl
+tcsh
+texinfo
+mandoc
+typescript
+vhdl
+verilog
+xml
+xul
+yaml
+yacc
+zsh
+dot
+noweb
+rest
+sci
+sed
+xorg
+xslt
+EOSKYLEX
+
+LEXER_NORMALIZERS = {
+  'objectivec' => %w[objective-c obj-c],
+  'markdown' => %w[md mmd mkdn multimarkdown],
+  'bash' => %w[csh sh shell],
+  'javascript' => %w[js],
+  'javascriptreact' => %w[react],
+  'yaml' => %w[yml]
+}.freeze

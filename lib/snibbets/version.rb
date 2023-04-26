@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module Snibbets
-  VERSION = '2.0.32'
+  VERSION = '2.0.33'
 end

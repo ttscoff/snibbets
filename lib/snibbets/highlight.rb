@@ -2,6 +2,7 @@ module Snibbets
   module Highlight
     class << self
       def run_command_with_input(*cmd, input: nil, fallback: nil)
+
         stdout, _stderr, status = Open3.capture3(*cmd, stdin_data: input)
         if status.success?
           stdout
@@ -35,10 +36,9 @@ module Snibbets
                 else
                   ''
                 end
-        return code if syntax.nil? || syntax.empty?
+        return code if syntax.nil? || syntax.empty? || !Lexers.skylight_lexer?(syntax)
 
         run_command_with_input("#{executable} #{theme}--syntax #{syntax}", input: code)
-        # `echo #{Shellwords.escape(code)} | #{executable} #{theme}--syntax #{syntax}`
       end
 
       def highlight_fences(code, filename, syntax)
@@ -46,7 +46,8 @@ module Snibbets
 
         content.fences.each do |f|
           rx = Regexp.new(Regexp.escape(f[:code]))
-          highlighted = highlight(f[:code].gsub(/\\k</, '\k\<'), filename, f[:lang] || syntax).strip
+          syn = Lexers.normalize_lexer(f[:lang] || syntax)
+          highlighted = highlight(f[:code].gsub(/\\k</, '\k\<'), filename, syn).strip
           code.sub!(/#{rx}/, highlighted)
         end
 
@@ -62,6 +63,7 @@ module Snibbets
 
         theme ||= Snibbets.options[:highlight_theme] || 'monokai'
         syntax ||= Lexers.syntax_from_extension(filename)
+        syntax = Lexers.normalize_lexer(syntax)
 
         return code if ['text'].include?(syntax)
 
@@ -69,7 +71,11 @@ module Snibbets
         pygments = TTY::Which.which('pygmentize')
 
         if Snibbets.options[:highlighter] =~ /^s/ && !skylight.nil?
-          return highlight_skylight(skylight, code, syntax, theme)
+          if !Lexers.skylight_lexer?(syntax) && !pygments.nil?
+            return highlight_pygments(pygments, code, syntax, 'monokai')
+          else
+            return highlight_skylight(skylight, code, syntax, theme)
+          end
         elsif Snibbets.options[:highlighter] =~ /^p/ && !pygments.nil?
           return highlight_pygments(pygments, code, syntax, theme)
         elsif !skylight.nil?

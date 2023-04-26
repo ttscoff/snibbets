@@ -26,6 +26,7 @@ module Snibbets
     def run
       options = Snibbets.options
       arguments = Snibbets.arguments
+      Color.coloring = $stdout.isatty
 
       optparse = OptionParser.new do |opts|
         opts.banner = "Usage: #{File.basename(__FILE__)} [options] query"
@@ -94,14 +95,14 @@ module Snibbets
         end
 
         opts.on('-h', '--help', 'Display this screen') do
-          puts "Snibbets v#{VERSION}"
+          puts "{by}Snibbets {w}v#{VERSION}".x
           puts
           puts optparse
           Process.exit 0
         end
 
         opts.on('-v', '--version', 'Display version information') do
-          puts "Snibbets v#{VERSION}"
+          puts "{by}Snibbets {w}v#{VERSION}".x
           Process.exit 0
         end
 
@@ -116,7 +117,7 @@ module Snibbets
       if arguments[:save_config]
         config = Snibbets::Config.new
         config.write_config
-        puts "Configuration saved to #{config.config_file}"
+        puts "{bg}Configuration saved to {w}#{config.config_file}".x
       end
 
       if arguments[:edit_config]
@@ -127,8 +128,8 @@ module Snibbets
       end
 
       unless File.directory?(options[:source])
-        puts 'The Snippets folder doesn\'t exist, please configure it.'
-        puts 'Run `snibbets --configure` to open the config file for editing.'
+        puts '{br}The Snippets folder doesn\'t exist, please configure it.'.x
+        puts '{bg}Run `{bw}snibbets --configure{bg}` to open the config file for editing.'.x
         Process.exit 1
       end
 
@@ -155,7 +156,7 @@ module Snibbets
         if arguments[:save_config]
           Process.exit 0
         else
-          puts 'No search query'
+          puts '{br}No search query'.x
           puts optparse
           Process.exit 1
         end
