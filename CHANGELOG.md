@@ -1,3 +1,15 @@
+### 2.0.34
+
+2023-06-17 09:17
+
+#### IMPROVED
+
+- If a section of a snippet contains no code blocks, output the whole thing
+
+#### FIXED
+
+- Correct error if searching name only and no results are returned
+
 ### 2.0.33
 
 2023-04-26 10:23

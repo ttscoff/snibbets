@@ -61,9 +61,7 @@ module Snibbets
               ag = TTY::Which.which('ag')
               ack = TTY::Which.which('ack')
               grep = TTY::Which.which('grep')
-              if Snibbets.options[:name_only]
-                nil
-              elsif !rg.empty?
+              if !rg.empty?
                 %(#{rg} -li --color=never --glob='*.#{ext}' '#{@query.rx}' "#{folder}")
               elsif !ag.empty?
                 %(#{ag} -li --nocolor -G '.*.#{ext}' '#{@query.rx}' "#{folder}")
@@ -84,9 +82,14 @@ module Snibbets
               end
             end
 
-      if try == 2 && cmd.nil?
-        puts "{br}No search method available on this system. Please install ripgrep, silver surfer, ack, or grep.".x
-        Process.exit 1
+      if try == 2
+        if Snibbets.options[:name_only]
+          puts '{br}No name matches found'.x
+          Process.exit 1
+        elsif cmd.nil?
+          puts '{br}No search method available on this system. Please install ripgrep, silver surfer, ack, or grep.'.x
+          Process.exit 1
+        end
       end
 
       res = cmd.nil? ? '' : `#{cmd}`.strip
