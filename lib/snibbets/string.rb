@@ -169,7 +169,7 @@ module Snibbets
 
         next if lines.blocks.zero? && !notes
 
-        title = if lines.count > 1 && lines[0] !~ /<block\d+>/ && lines[0] =~ /^ +/
+        title = if lines.count > 1 && lines[0] !~ /<block\d+>/
                   lines.shift.strip.sub(/[.:]$/, '')
                 else
                   'Default snippet'
@@ -208,18 +208,27 @@ module Snibbets
       # becomes the title, code is gleaned from text between that and the
       # next ATX header (or end)
       sans_blocks, code_blocks = content.replace_blocks
+      parts = sans_blocks.gsub(/\n{2,}/, "\n\n").split(/^#+/)
 
-      parts = if Snibbets.options[:all_notes]
-                sans_blocks.split(/^#+/)
-              elsif sans_blocks =~ /<block\d+>/
-                sans_blocks.split(/\n/).each_with_object([]) do |line, arr|
-                  arr << line if line =~ /^#/ || line =~ /<block\d+>/
-                end.join("\n").split(/^#+/)
-              else
-                sans_blocks.gsub(/\n{2,}/, "\n\n").split(/^#+/)
-              end
-
-      # parts.shift if parts.count > 1
+      unless Snibbets.options[:all_notes]
+        parts.map! do |part|
+          if part =~ /<block\d+>/
+            lines = part.split(/\n/)
+            title = lines.shift
+            out = [title.gsub(/(^#+|#+$)/, '').strip]
+            out.concat(lines.each_with_object([]) do |line, arr|
+              arr << line.gsub(/(^#+|#+$)/, '').strip if line =~ /^#/ || line =~ /<block\d+>/
+            end)
+            out.join("\n")
+          else
+            lines = part.split(/\n/)
+            title = lines.shift
+            out = title.nil? ? [] : [title.gsub(/(^#+|#+$)/, '').strip]
+            out.concat(lines)
+            out.join("\n")
+          end
+        end
+      end
 
       restore_blocks(parts, code_blocks)
     end
