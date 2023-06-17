@@ -159,7 +159,26 @@ Snibbet's implementation of Skylighting has limited but better-looking themes, a
 ### Usage
 
 ```
+Snibbets v2.0.34
 
+Usage: snibbets [options] query
+    -a, --all                        If a file contains multiple snippets, output all of them (no menu)
+    -c, --[no-]copy                  Copy the output to the clibpoard (also displays on STDOUT)
+    -e, --edit                       Open the selected snippet in your configured editor
+    -n, --[no-]name-only             Only search file names, not content
+        --[no-]notes                 Display the full content of the snippet
+    -o, --output FORMAT              Output format (json|launchbar|*raw)
+    -p, --paste, --new               Interactively create a new snippet from clipboard contents (Mac only)
+    -q, --quiet                      Skip menus and display first match
+    -s, --source FOLDER              Snippets folder to search
+        --configure                  Open the configuration file in your default editor
+        --[no-]blockquotes           Include block quotes in output
+        --[no-]highlight             Use pygments or skylighting to syntax highlight (if installed)
+        --nvultra                    Open the result in nvUltra
+        --save                       Save the current command line options to the YAML configuration
+    -h, --help                       Display this screen
+    -v, --version                    Display version information
+        --changes                    Display the changelog (release notes)
 ```
 
 If your Snippets folder is set in the config, simply running `snibbets [search query]` will perform the search and output the code blocks, presenting a menu if more than one match is found or the target file contains more than one snippet. Selected contents are output raw to STDOUT.
