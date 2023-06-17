@@ -66,3 +66,4 @@ build-iPhoneSimulator/
 # .rubocop-https?--*
 html
 *.bak
+.irb_history
