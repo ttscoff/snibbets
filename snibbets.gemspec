@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.require_paths << 'lib'
   spec.extra_rdoc_files = ['README.md']
-  spec.rdoc_options << '--title' << 'na' << '--main' << 'README.md' << '--markup' << 'markdown'
+  spec.rdoc_options << '--title' << 'snibbets' << '--main' << 'README.md' << '--markup' << 'markdown'
 
   spec.bindir = "bin"
   spec.executables << 'snibbets'

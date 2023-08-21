@@ -70,7 +70,7 @@ To install Snibbets:
 
     gem install snibbets
 
-If you're using the system Ruby, you may need to use `sudo gem install snibbets`.
+If you're using the system Ruby, use `gem install --user-install snibbets` instead.
 
 ### Configuration
 
