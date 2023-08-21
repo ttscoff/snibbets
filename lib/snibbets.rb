@@ -74,7 +74,7 @@ module Snibbets
               end
             else
               mdfind = TTY::Which.which('mdfind')
-              if mdfind.empty?
+              if mdfind.nil? || mdfind.empty?
                 nil
               else
                 name_only = Snibbets.options[:name_only] ? '-name ' : ''

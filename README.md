@@ -68,7 +68,7 @@ To install Snibbets:
 
     gem install snibbets
 
-If you're using the system Ruby, you may need to use `sudo gem install snibbets`.
+If you're using the system Ruby, use `gem install --user-install snibbets` instead.
 
 ### Configuration
 
@@ -159,7 +159,7 @@ Snibbet's implementation of Skylighting has limited but better-looking themes, a
 ### Usage
 
 ```
-Snibbets v2.0.34
+Snibbets v2.0.35
 
 Usage: snibbets [options] query
     -a, --all                        If a file contains multiple snippets, output all of them (no menu)
