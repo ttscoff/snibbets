@@ -1,7 +1,5 @@
 
-
 [![RubyGems.org](https://img.shields.io/gem/v/snibbets)](https://rubygems.org/gems/snibbets)
-<!-- [![GitHub Actions](https://github.com/ttscoff/snibbets/actions/workflows/check.yml/badge.svg)](https://github.com/ttscoff/snibbets/actions/workflows/check.yml) -->
 
 A tool for accessing code snippets contained in a folder of plain text Markdown files.
 
@@ -159,7 +157,7 @@ Snibbet's implementation of Skylighting has limited but better-looking themes, a
 ### Usage
 
 ```
-Snibbets v2.0.35
+Snibbets v2.0.36
 
 Usage: snibbets [options] query
     -a, --all                        If a file contains multiple snippets, output all of them (no menu)

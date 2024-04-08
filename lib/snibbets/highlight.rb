@@ -2,7 +2,6 @@ module Snibbets
   module Highlight
     class << self
       def run_command_with_input(*cmd, input: nil, fallback: nil)
-
         stdout, _stderr, status = Open3.capture3(*cmd, stdin_data: input)
         if status.success?
           stdout

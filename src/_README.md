@@ -1,10 +1,8 @@
 # Snibbets
 
 <!--README-->
-<!--GITHUB-->
 [![RubyGems.org](https://img.shields.io/gem/v/snibbets)](https://rubygems.org/gems/snibbets)
-<!-- [![GitHub Actions](https://github.com/ttscoff/snibbets/actions/workflows/check.yml/badge.svg)](https://github.com/ttscoff/snibbets/actions/workflows/check.yml) -->
-<!--END GITHUB-->
+
 A tool for accessing code snippets contained in a folder of plain text Markdown files.
 
 Snibbets allows me to keep code snippets in raw files, not relying on a dedicated code snippet app. I can collect and edit my snippets using a text editor, nvALT (nvUltra), or simply by saving snippets from my clipboard to a text file using *NIX redirection on the command line. I can add descriptive names and extended descriptions/notes to code snippets using standard Markdown.
