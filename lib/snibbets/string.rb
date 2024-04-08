@@ -74,7 +74,7 @@ module Snibbets
     end
 
     def rx
-      ".*#{gsub(/\s+/, '.*')}.*"
+      ".*#{gsub(/tags?:/, '').gsub(/\s+/, '.*')}.*"
     end
 
     # remove outside comments, fences, and indentation

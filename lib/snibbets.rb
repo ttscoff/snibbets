@@ -78,7 +78,7 @@ module Snibbets
                 nil
               else
                 name_only = Snibbets.options[:name_only] ? '-name ' : ''
-                %(mdfind -onlyin #{folder} #{name_only}'#{@query} filename:.#{ext}' 2>/dev/null)
+                %(mdfind -onlyin #{folder} #{name_only}'#{@query} name:.#{ext}' 2>/dev/null)
               end
             end
 
