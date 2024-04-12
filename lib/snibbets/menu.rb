@@ -52,7 +52,7 @@ module Snibbets
         options = res.map { |m| "#{filename}: #{m['title']}" }
         q = query.nil? ? '' : find_query_in_options(filename, res, query)
         args = [
-          "--height=#{options.count + 2}",
+          "--height=#{options.count + 3}",
           %(--prompt="#{title} > "),
           '-1',
           %(--header="#{filename}"),
