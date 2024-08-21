@@ -1,3 +1,12 @@
+### 2.0.38
+
+2024-08-21 08:52
+
+#### NEW
+
+- `--edit-new` will create a new snippet and open it in configured editor, prompting for title and language
+- `--edit-new-titled FILENAME` will create and edit a new snippet with title, language determined by filename extension or prompted for if missing
+
 ### 2.0.36
 
 2024-04-08 14:25
