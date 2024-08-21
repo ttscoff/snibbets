@@ -47,6 +47,18 @@ module Snibbets
           options[:name_only] = v
         end
 
+        opts.on('--edit-new', 'Create new snippet by opening editor. Title and language prompted.') do
+          arguments[:new] = true
+          arguments[:edit_snippet] = true
+          options[:filename] = nil
+        end
+
+        opts.on('--edit-new-titled TITLE', 'Create new snippet by opening editor. Pass filename with language extension(s).') do |v|
+          arguments[:new] = true
+          arguments[:edit_snippet] = true
+          options[:filename] = v
+        end
+
         opts.on('--[no-]notes', 'Display the full content of the snippet') do |v|
           options[:all_notes] = v
         end
@@ -94,19 +106,19 @@ module Snibbets
           arguments[:save_config] = true
         end
 
-        opts.on('-h', '--help', 'Display this screen') do
+        opts.on_tail('-h', '--help', 'Display this screen') do
           puts "{by}Snibbets {w}v#{VERSION}".x
           puts
           puts optparse
           Process.exit 0
         end
 
-        opts.on('-v', '--version', 'Display version information') do
+        opts.on_tail('-v', '--version', 'Display version information') do
           puts "{by}Snibbets {w}v#{VERSION}".x
           Process.exit 0
         end
 
-        opts.on('--changes', 'Display the changelog (release notes)') do
+        opts.on_tail('--changes', 'Display the changelog (release notes)') do
           display_changelog
           Process.exit 0
         end
@@ -124,6 +136,11 @@ module Snibbets
         config = Snibbets::Config.new
         config.write_config
         open_snippet_in_editor(config.config_file)
+        Process.exit 0
+      end
+
+      if arguments[:new]
+        Snibbets.new_snippet_with_editor(options)
         Process.exit 0
       end
 

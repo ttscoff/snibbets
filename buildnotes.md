@@ -1,6 +1,7 @@
-template: gem, git, gli, project
+template: gem, git, gli, project, sublime
+sublime_project: snibbets
 executable: na
-readme: src/_README.md
+readme: src/\_README.md
 changelog: CHANGELOG.md
 project: snibbets
 
