@@ -1,14 +1,17 @@
 
+
 [![RubyGems.org](https://img.shields.io/gem/v/snibbets)](https://rubygems.org/gems/snibbets)
 
 A tool for accessing code snippets contained in a folder of plain text Markdown files.
 
-Snibbets allows me to keep code snippets in raw files, not relying on a dedicated code snippet app. I can collect and edit my snippets using a text editor, nvALT (nvUltra), or simply by saving snippets from my clipboard to a text file using *NIX redirection on the command line. I can add descriptive names and extended descriptions/notes to code snippets using standard Markdown.
+Snibbets allows me to keep code snippets in raw files, not relying on a dedicated code snippet app. I can collect and edit my snippets using a text editor, nvALT (nvUltra), or simply by saving snippets from my clipboard to a text file using \*NIX redirection on the command line. I can add descriptive names and extended descriptions/notes to code snippets using standard Markdown.
 
 What Snibbets does is simply allow a quick search for a specific snippet that I can either output to the terminal, pipe to my clipboard, or access via LaunchBar (via the included LaunchBar Action). It's basically a wrapper for `find` and `grep` with the ability to separate code blocks from other text in my Markdown files.
 
 
+
 ![Snibbets in action](https://cdn3.brettterpstra.com/uploads/2023/04/snibbets2.gif)
+
 
 
 
@@ -22,7 +25,7 @@ The name of the file should be the description of the snippet, at least in the c
 
 You can combine multiple snippets in a file, though. For example, I have a file called 'Ruby hash snippets.rb.md'. That file contains an array of useful snippets, and each one has a descriptive title in an h3 header above it. Those (ATX) headers are used to split the file, and when you search from the command line, you'll get a menu of all of the snippets in the selected file. (And if you have [fzf](https://github.com/junegunn/fzf) or [gum](https://github.com/charmbracelet/gum) installed, you can quickly filter through with fuzzy searching and find exactly what you need.)
 
-If a file contains multiple snippets, they should be separated by ATX-style headers (one or more `#`) describing the snippets. Additional descriptions and notes can be included outside of the code block. Notes are not output on the console, only the code is displayed. If you want a note to be included in console output, make it a blockquote by preceding it with `>`. 
+If a file contains multiple snippets, they should be separated by ATX-style headers (one or more `#`) describing the snippets. Additional descriptions and notes can be included outside of the code block. Notes are not output on the console, only the code is displayed. If you want a note to be included in console output, make it a blockquote by preceding it with `>`.
 
 A file titled `unix find.bash.md`:
 
@@ -80,13 +83,13 @@ Default config:
 ---
 all: false
 copy: false
-editor: 
+editor:
 extension: md
 highlight: false
 include_blockquotes: false
 interactive: true
 launchbar: false
-menus: 
+menus:
 name_only: false
 output: raw
 source: "~/Dropbox/Snippets"
@@ -110,7 +113,7 @@ The `editor` setting is used to open the config file, and to open snippets for e
 
 The `include_blockquotes` setting determines whether blockquotes are included in the output. By default, Snibbets removes everything other than code blocks (indented or fenced) from the output it displays. But if you want to include a note that you'll see on the command line, you can put it in a block quote by preceding each line you want to preserve with a right angle bracket (`>`).
 
-The `interactive` setting determines whether menus will be displayed. This should generally be true, but if you want silent operation that just displays the best match automatically, set it to false. 
+The `interactive` setting determines whether menus will be displayed. This should generally be true, but if you want silent operation that just displays the best match automatically, set it to false.
 
 The `menus` setting will determine what method is used for displaying interactive menus. If this is not set, it will be automatically determined in the order of `fzf`, `gum`, and `console`. You can manually choose to use one of these options over another by making it the `menus` setting.
 
@@ -118,11 +121,11 @@ The `name_only` key will permanently set Snibbets to only search for snippets by
 
 #### Syntax Highlighting
 
-The `highlight` key turns on syntax highlighting. This requires that either `pygmentize` or `skylighting` is available on your system (both available via package managers like Homebrew). This feature is still in development and results may be mixed. You can also set `highlighter` to `pygments` or `skylight` to force using one highlighter over the other. 
+The `highlight` key turns on syntax highlighting. This requires that either `pygmentize` or `skylighting` is available on your system (both available via package managers like Homebrew). This feature is still in development and results may be mixed. You can also set `highlighter` to `pygments` or `skylight` to force using one highlighter over the other.
 
-Highlighting using Skylighting requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`. 
+Highlighting using Skylighting requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`.
 
-You can also define languages in your fenced code blocks by putting the lexer name right after the opening fence. When defining multiple snippets in one file that are of different languages, this method will ensure that each one is properly highlighted. 
+You can also define languages in your fenced code blocks by putting the lexer name right after the opening fence. When defining multiple snippets in one file that are of different languages, this method will ensure that each one is properly highlighted.
 
 If you don't use either extensions or fenced code labels with Skylighting, code won't get highlighted.
 
@@ -157,13 +160,15 @@ Snibbet's implementation of Skylighting has limited but better-looking themes, a
 ### Usage
 
 ```
-Snibbets v2.0.37
+Snibbets v2.0.39
 
 Usage: snibbets [options] query
     -a, --all                        If a file contains multiple snippets, output all of them (no menu)
     -c, --[no-]copy                  Copy the output to the clibpoard (also displays on STDOUT)
     -e, --edit                       Open the selected snippet in your configured editor
     -n, --[no-]name-only             Only search file names, not content
+        --edit-new                   Create new snippet by opening editor. Title and language prompted.
+        --edit-new-titled TITLE      Create new snippet by opening editor. Pass filename with language extension(s).
         --[no-]notes                 Display the full content of the snippet
     -o, --output FORMAT              Output format (json|launchbar|*raw)
     -p, --paste, --new               Interactively create a new snippet from clipboard contents (Mac only)
@@ -193,6 +198,8 @@ Use the `--edit` flag on any search to open the found snippet file in your edito
 
 #### Creating new snippets
 
+##### From clipboard
+
 I do most of my snippet editing in [nvUltra], but sometimes I have a function in my clipboard that just needs quick saving and there are so few moving parts to creating a snippet that it just feels like they could be automated/simplified. That's why I added the `--paste` flag. If you have a code snippet in your clipboard, you can just run `snibbets --paste` (or just `-p`) and you'll get a prompt asking you to describe the snippet (used for filename) and one asking what language(s) are represented.
 
 You can input the languages as names, e.g. `rust`, `typescript`, or `scala`, or you can just add file extensions that represent the language. If I say `ts` to that prompt, it will generate an extension of `.ts.md` and then add a metadata tag of `typescript` to the file. The code from the clipboard goes into a fenced code block in the document. You can always go add notes to it later, but it's a great way to save snippets as you come across them (or solutions you figure out after a week of banging your head).
@@ -201,6 +208,9 @@ This command requires that a clipboard utility be available. On macOS, you have 
 
 [nvUltra]: https://nvultra.com "nvUltra for Mac"
 
+##### With editor
+
+You can also create new snippets by opening a skeleton file in your editor with `--edit-new`. This will prompt for a title and languages, create the new file, and open it in your editor (or in nvUltra with the `--nvultra` flag). If you use `--edit-new-titled TITLE`, the new snippet will get a filename from `TITLE` and languages will be determined from any extension added to the title, or prompted for if none are found.
 
 #### Saving Settings When Running
 
@@ -212,7 +222,7 @@ _I'm currently reworking the LaunchBar action, and it doesn't function very well
 
 <!-- ### Installation
 
-The LaunchBar action can be installed simply by double clicking the `.lbaction` file in Finder. The CLI is not required for the LaunchBar action to function. 
+The LaunchBar action can be installed simply by double clicking the `.lbaction` file in Finder. The CLI is not required for the LaunchBar action to function.
 
 Once installed, run the action (type `snib` and hit return on the result) to select your Snippets folder.
 

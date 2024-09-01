@@ -166,22 +166,24 @@ module Snibbets
       pb = OS.paste.outdent
       reader = TTY::Reader.new
 
-      # printf 'What does this snippet do? '
-      input = reader.read_line('{by}What does this snippet do{bw}? '.x).strip
-      # input = $stdin.gets.chomp
-      title = input unless input.empty?
+      begin
+        input = reader.read_line('{by}What does this snippet do{bw}? '.x).strip
+        title = input unless input.empty?
 
-      # printf 'What language(s) does it use (separate with spaces, full names or file extensions will work)? '
-      input = reader.read_line('{by}What language(s) does it use ({xw}separate with spaces, full names or file extensions{by}){bw}? '.x).strip
-      # input = $stdin.gets.chomp
-      langs = input.split(/ +/).map(&:strip) unless input.empty?
+        input = reader.read_line('{by}What language(s) does it use ({xw}separate with spaces, full names or file extensions{by}){bw}? '.x).strip
+        langs = input.split(/ +/).map(&:strip) unless input.empty?
+      rescue TTY::Reader::InputInterrupt
+        puts "\nCancelled"
+        Process.exit 1
+      end
+
       exts = langs.map { |lang| Lexers.lang_to_ext(lang) }.delete_if(&:nil?)
       tags = langs.map { |lang| Lexers.ext_to_lang(lang) }.concat(langs).delete_if(&:nil?).sort.uniq
 
       exts = langs if exts.empty?
 
       filename = "#{title}#{exts.map { |x| ".#{x}" }.join('')}.#{Snibbets.options[:extension]}"
-      filepath = File.join(File.expand_path(Snibbets.options[:source]), filename)
+      filepath = File.join(File.expand_path(Snibbets.options[:source]), filename.escape_filename)
       File.open(filepath, 'w') do |f|
         f.puts "tags: #{tags.join(', ')}
 
@@ -194,6 +196,93 @@ module Snibbets
 
       open_snippet_in_editor(filepath) if Snibbets.arguments[:edit_snippet]
       open_snippet_in_nvultra(filepath) if Snibbets.arguments[:nvultra]
+    end
+
+    def new_snippet_with_editor(options)
+      return false unless $stdout.isatty
+
+      trap('SIGINT') do
+        Howzit.console.info "\nCancelled"
+        exit!
+      end
+
+      reader = TTY::Reader.new
+      if options[:filename]
+        title = options[:filename].sub(/(\.#{Snibbets.options[:extension]})$/, '')
+        extensions = options[:filename].match(/(\.\w+)+$/)
+        langs = extensions ? extensions[0].split(/\./).delete_if(&:empty?) : []
+        title.sub!(/(\.\w+)+$/, '')
+      else
+        begin
+          input = reader.read_line('{by}What does this snippet do{bw}? '.x).strip
+          title = input unless input.empty?
+        rescue TTY::Reader::InputInterrupt
+          puts "\nCancelled"
+          Process.exit 1
+        end
+      end
+
+      if langs.nil? || langs.empty?
+        begin
+          # printf 'What language(s) does it use (separate with spaces, full names or file extensions will work)? '
+          input = reader.read_line('{by}What language(s) does it use ({xw}separate with spaces, full names or file extensions{by}){bw}? '.x).strip
+          # input = $stdin.gets.chomp
+          langs = input.split(/ +/).map(&:strip) unless input.empty?
+        rescue TTY::Reader::InputInterrupt
+          puts "\nCancelled"
+          Process.exit 1
+        end
+      end
+
+      exts = langs.map { |lang| Lexers.lang_to_ext(lang) }.delete_if(&:nil?)
+      tags = langs.map { |lang| Lexers.ext_to_lang(lang) }.concat(langs).delete_if(&:nil?).sort.uniq
+
+      exts = langs if exts.empty?
+
+      filename = "#{title}#{exts.map { |x| ".#{x}" }.join('')}.#{Snibbets.options[:extension]}"
+      filepath = File.join(File.expand_path(Snibbets.options[:source]), filename.escape_filename)
+
+      output =<<~EOOUTPUT
+        tags: #{tags.join(', ')}
+
+        > #{title}
+      EOOUTPUT
+
+      if langs.count.positive?
+        tags.each do |lang|
+          comment = case lang
+                    when /(c|cpp|objectivec|java|javascript|dart|php|golang|typescript|kotlin)/
+                      '// Code'
+                    else
+                      '# Code'
+                    end
+
+          output << <<~EOLANGS
+
+            ```#{lang}
+            #{comment}
+            ```
+          EOLANGS
+        end
+      else
+        output << <<~EOCODE
+          ```LANG
+          ```
+        EOCODE
+      end
+
+      File.open(filepath, 'w') do |f|
+        f.puts output
+      end
+
+      puts "{bg}New snippet written to {bw}#{filename}.".x
+
+      if Snibbets.arguments[:nvultra]
+        sleep 2
+        open_snippet_in_nvultra(filepath)
+      else
+        open_snippet_in_editor(filepath)
+      end
     end
 
     def handle_launchbar(results)
