@@ -183,7 +183,7 @@ module Snibbets
       exts = langs if exts.empty?
 
       filename = "#{title}#{exts.map { |x| ".#{x}" }.join('')}.#{Snibbets.options[:extension]}"
-      filepath = File.join(File.expand_path(Snibbets.options[:source]), filename)
+      filepath = File.join(File.expand_path(Snibbets.options[:source]), filename.escape_filename)
       File.open(filepath, 'w') do |f|
         f.puts "tags: #{tags.join(', ')}
 
@@ -240,7 +240,7 @@ module Snibbets
       exts = langs if exts.empty?
 
       filename = "#{title}#{exts.map { |x| ".#{x}" }.join('')}.#{Snibbets.options[:extension]}"
-      filepath = File.join(File.expand_path(Snibbets.options[:source]), filename)
+      filepath = File.join(File.expand_path(Snibbets.options[:source]), filename.escape_filename)
 
       output =<<~EOOUTPUT
         tags: #{tags.join(', ')}

@@ -3,6 +3,10 @@
 module Snibbets
   # String helpers
   class ::String
+    def escape_filename
+      gsub(%r{/}, ':')
+    end
+
     def remove_spotlight_tags
       words = Shellwords.shellsplit(self)
       words.delete_if do |word|
