@@ -1,27 +1,27 @@
 # frozen_string_literal: true
 
-require 'cgi'
-require 'erb'
-require 'fileutils'
-require 'json'
-require 'open3'
-require 'optparse'
-require 'readline'
-require 'shellwords'
-require 'tty-reader'
-require 'tty-which'
-require 'yaml'
-require_relative 'snibbets/version'
-require_relative 'snibbets/colors'
-require_relative 'snibbets/config'
-require_relative 'snibbets/which'
-require_relative 'snibbets/string'
-require_relative 'snibbets/hash'
-require_relative 'snibbets/array'
-require_relative 'snibbets/menu'
-require_relative 'snibbets/os'
-require_relative 'snibbets/highlight'
-require_relative 'snibbets/lexers'
+require "cgi"
+require "erb"
+require "fileutils"
+require "json"
+require "open3"
+require "optparse"
+require "readline"
+require "shellwords"
+require "tty-reader"
+require "tty-which"
+require "yaml"
+require_relative "snibbets/version"
+require_relative "snibbets/colors"
+require_relative "snibbets/config"
+require_relative "snibbets/which"
+require_relative "snibbets/string"
+require_relative "snibbets/hash"
+require_relative "snibbets/array"
+require_relative "snibbets/menu"
+require_relative "snibbets/os"
+require_relative "snibbets/highlight"
+require_relative "snibbets/lexers"
 
 # Top level module
 module Snibbets
@@ -47,78 +47,84 @@ module Snibbets
     end
 
     # Search the snippets directory for query using find and grep
-    def search(try: 0)
+    def search(try: 0, matches: [])
       folder = File.expand_path(Snibbets.options[:source])
-      # start by doing a spotlight search, if that fails, start trying:
-      # First try only search by filenames
-      # Second try search with grep
-      ext = Snibbets.options[:extension] || 'md'
+      # start by doing a spotlight search with mdfind
+      # next try only search by filenames (find)
+      # next try search with grep (rg, ag, ack, grep)
+      # concatenate results from each search, removing duplicates and sorting
+      ext = Snibbets.options[:extension] || "md"
+
       cmd = case try
-            when 1
-              %(find "#{folder}" -iregex '^#{Regexp.escape(folder)}/#{@query.rx}' -name '*.#{ext}')
-            when 2
-              rg = TTY::Which.which('rg')
-              ag = TTY::Which.which('ag')
-              ack = TTY::Which.which('ack')
-              grep = TTY::Which.which('grep')
-              if !rg.empty?
-                %(#{rg} -li --color=never --glob='*.#{ext}' '#{@query.rx}' "#{folder}")
-              elsif !ag.empty?
-                %(#{ag} -li --nocolor -G '.*.#{ext}' '#{@query.rx}' "#{folder}")
-              elsif !ack.empty?
-                %(#{ack} -li --nocolor --markdown '#{@query.rx}' "#{folder}")
-              elsif !grep.empty?
-                %(#{grep} -iEl '#{@query.rx}' "#{folder}"/**/*.#{ext})
-              else
-                nil
-              end
-            else
-              mdfind = TTY::Which.which('mdfind')
-              if mdfind.nil? || mdfind.empty?
-                nil
-              else
-                name_only = Snibbets.options[:name_only] ? '-name ' : ''
-                %(mdfind -onlyin #{folder} #{name_only}'#{@query} name:.#{ext}' 2>/dev/null)
-              end
-            end
+        when 1
+          %(find "#{folder}" -iregex '^#{Regexp.escape(folder)}/#{@query.rx}' -name '*.#{ext}')
+        when 2
+          rg = TTY::Which.which("rg")
+          ag = TTY::Which.which("ag")
+          ack = TTY::Which.which("ack")
+          grep = TTY::Which.which("grep")
+          if !rg.empty?
+            %(#{rg} -li --color=never --glob='*.#{ext}' '#{@query.rx}' "#{folder}")
+          elsif !ag.empty?
+            %(#{ag} -li --nocolor -G '.*.#{ext}' '#{@query.rx}' "#{folder}")
+          elsif !ack.empty?
+            %(#{ack} -li --nocolor --markdown '#{@query.rx}' "#{folder}")
+          elsif !grep.empty?
+            %(#{grep} -iEl '#{@query.rx}' "#{folder}"/**/*.#{ext})
+          else
+            nil
+          end
+        else
+          mdfind = TTY::Which.which("mdfind")
+          if mdfind.nil? || mdfind.empty?
+            nil
+          else
+            name_only = Snibbets.options[:name_only] ? "-name " : ""
+            %(mdfind -onlyin #{folder} #{name_only}'#{@query} name:.#{ext}' 2>/dev/null)
+          end
+        end
 
       if try == 2
         if Snibbets.options[:name_only]
-          puts '{br}No name matches found'.x
+          puts "{br}No name matches found".x
           Process.exit 1
         elsif cmd.nil?
-          puts '{br}No search method available on this system. Please install ripgrep, silver surfer, ack, or grep.'.x
+          puts "{br}No search method available on this system. Please install ripgrep, silver surfer, ack, or grep.".x
           Process.exit 1
         end
       end
 
-      res = cmd.nil? ? '' : `#{cmd}`.strip
-
-      matches = []
+      res = cmd.nil? ? "" : `#{cmd}`.strip
 
       unless res.empty?
         lines = res.split(/\n/)
         lines.each do |l|
           matches << {
-            'title' => File.basename(l, '.*'),
-            'path' => l
+            "title" => File.basename(l, ".*"),
+            "path" => l,
           }
         end
 
-        matches.sort_by! { |a| a['title'] }.uniq!
+        matches.sort_by! { |a| a["title"] }.uniq!
 
-        return matches unless matches.empty?
+        # return matches unless matches.empty?
       end
 
+      matches.delete_if do |m|
+        content = IO.read(m["path"])
+        !content.match_all_tags(@query)
+      end
+
+      # return after 3 cycles
       return matches if try == 2
 
-      # if no results on the first try, try again searching all text
-      search(try: try + 1) if matches.empty?
+      # continue search, appends to current matches
+      search(try: try + 1, matches: matches)
     end
 
     def open_snippet_in_nvultra(filepath)
-      notebook = Snibbets.options[:source].gsub(/ /, '%20')
-      note = ERB::Util.url_encode(File.basename(filepath, '.md'))
+      notebook = Snibbets.options[:source].gsub(/ /, "%20")
+      note = ERB::Util.url_encode(File.basename(filepath, ".md"))
       url = "x-nvultra://open?notebook=#{notebook}&note=#{note}"
       `open '#{url}'`
     end
@@ -126,7 +132,7 @@ module Snibbets
     def open_snippet_in_editor(filepath)
       editor = Snibbets.options[:editor] || Snibbets::Config.best_editor
 
-      os = RbConfig::CONFIG['target_os']
+      os = RbConfig::CONFIG["target_os"]
 
       if editor.nil?
         OS.open(filepath)
@@ -158,7 +164,7 @@ module Snibbets
     def new_snippet_from_clipboard
       return false unless $stdout.isatty
 
-      trap('SIGINT') do
+      trap("SIGINT") do
         Howzit.console.info "\nCancelled"
         exit!
       end
@@ -167,10 +173,10 @@ module Snibbets
       reader = TTY::Reader.new
 
       begin
-        input = reader.read_line('{by}What does this snippet do{bw}? '.x).strip
+        input = reader.read_line("{by}What does this snippet do{bw}? ".x).strip
         title = input unless input.empty?
 
-        input = reader.read_line('{by}What language(s) does it use ({xw}separate with spaces, full names or file extensions{by}){bw}? '.x).strip
+        input = reader.read_line("{by}What language(s) does it use ({xw}separate with spaces, full names or file extensions{by}){bw}? ".x).strip
         langs = input.split(/ +/).map(&:strip) unless input.empty?
       rescue TTY::Reader::InputInterrupt
         puts "\nCancelled"
@@ -182,10 +188,10 @@ module Snibbets
 
       exts = langs if exts.empty?
 
-      filename = "#{title}#{exts.map { |x| ".#{x}" }.join('')}.#{Snibbets.options[:extension]}"
+      filename = "#{title}#{exts.map { |x| ".#{x}" }.join("")}.#{Snibbets.options[:extension]}"
       filepath = File.join(File.expand_path(Snibbets.options[:source]), filename.escape_filename)
-      File.open(filepath, 'w') do |f|
-        f.puts "tags: #{tags.join(', ')}
+      File.open(filepath, "w") do |f|
+        f.puts "tags: #{tags.join(", ")}
 
 ```
 #{pb}
@@ -201,20 +207,20 @@ module Snibbets
     def new_snippet_with_editor(options)
       return false unless $stdout.isatty
 
-      trap('SIGINT') do
+      trap("SIGINT") do
         Howzit.console.info "\nCancelled"
         exit!
       end
 
       reader = TTY::Reader.new
       if options[:filename]
-        title = options[:filename].sub(/(\.#{Snibbets.options[:extension]})$/, '')
+        title = options[:filename].sub(/(\.#{Snibbets.options[:extension]})$/, "")
         extensions = options[:filename].match(/(\.\w+)+$/)
         langs = extensions ? extensions[0].split(/\./).delete_if(&:empty?) : []
-        title.sub!(/(\.\w+)+$/, '')
+        title.sub!(/(\.\w+)+$/, "")
       else
         begin
-          input = reader.read_line('{by}What does this snippet do{bw}? '.x).strip
+          input = reader.read_line("{by}What does this snippet do{bw}? ".x).strip
           title = input unless input.empty?
         rescue TTY::Reader::InputInterrupt
           puts "\nCancelled"
@@ -225,7 +231,7 @@ module Snibbets
       if langs.nil? || langs.empty?
         begin
           # printf 'What language(s) does it use (separate with spaces, full names or file extensions will work)? '
-          input = reader.read_line('{by}What language(s) does it use ({xw}separate with spaces, full names or file extensions{by}){bw}? '.x).strip
+          input = reader.read_line("{by}What language(s) does it use ({xw}separate with spaces, full names or file extensions{by}){bw}? ".x).strip
           # input = $stdin.gets.chomp
           langs = input.split(/ +/).map(&:strip) unless input.empty?
         rescue TTY::Reader::InputInterrupt
@@ -239,11 +245,11 @@ module Snibbets
 
       exts = langs if exts.empty?
 
-      filename = "#{title}#{exts.map { |x| ".#{x}" }.join('')}.#{Snibbets.options[:extension]}"
+      filename = "#{title}#{exts.map { |x| ".#{x}" }.join("")}.#{Snibbets.options[:extension]}"
       filepath = File.join(File.expand_path(Snibbets.options[:source]), filename.escape_filename)
 
-      output =<<~EOOUTPUT
-        tags: #{tags.join(', ')}
+      output = <<~EOOUTPUT
+        tags: #{tags.join(", ")}
 
         > #{title}
       EOOUTPUT
@@ -251,11 +257,11 @@ module Snibbets
       if langs.count.positive?
         tags.each do |lang|
           comment = case lang
-                    when /(c|cpp|objectivec|java|javascript|dart|php|golang|typescript|kotlin)/
-                      '// Code'
-                    else
-                      '# Code'
-                    end
+            when /(c|cpp|objectivec|java|javascript|dart|php|golang|typescript|kotlin)/
+              "// Code"
+            else
+              "# Code"
+            end
 
           output << <<~EOLANGS
 
@@ -271,7 +277,7 @@ module Snibbets
         EOCODE
       end
 
-      File.open(filepath, 'w') do |f|
+      File.open(filepath, "w") do |f|
         f.puts output
       end
 
@@ -290,14 +296,14 @@ module Snibbets
 
       if results.empty?
         out = {
-          'title' => 'No matching snippets found'
+          "title" => "No matching snippets found",
         }.to_json
         puts out
         Process.exit
       end
 
       results.each do |result|
-        input = IO.read(result['path'])
+        input = IO.read(result["path"])
         snippets = input.snippets
         next if snippets.empty?
 
@@ -305,29 +311,29 @@ module Snibbets
 
         if snippets.length == 1
           output << {
-            'title' => result['title'],
-            'path' => result['path'],
-            'action' => 'copyIt',
-            'actionArgument' => snippets[0]['code'],
-            'label' => 'Copy'
+            "title" => result["title"],
+            "path" => result["path"],
+            "action" => "copyIt",
+            "actionArgument" => snippets[0]["code"],
+            "label" => "Copy",
           }
           next
         end
 
         snippets.each { |s|
           children << {
-            'title' => s['title'],
-            'path' => result['path'],
-            'action' => 'copyIt',
-            'actionArgument' => s['code'],
-            'label' => 'Copy'
+            "title" => s["title"],
+            "path" => result["path"],
+            "action" => "copyIt",
+            "actionArgument" => s["code"],
+            "label" => "Copy",
           }
         }
 
         output << {
-          'title' => result['title'],
-          'path' => result['path'],
-          'children' => children
+          "title" => result["title"],
+          "path" => result["path"],
+          "children" => children,
         }
       end
 
@@ -340,14 +346,14 @@ module Snibbets
       else
         filepath = nil
         if results.empty?
-          warn 'No results' if Snibbets.options[:interactive]
+          warn "No results" if Snibbets.options[:interactive]
           Process.exit 0
         elsif results.length == 1 || !Snibbets.options[:interactive]
-          filepath = results[0]['path']
+          filepath = results[0]["path"]
           input = IO.read(filepath)
         else
-          answer = Snibbets::Menu.menu(results, title: 'Select a file')
-          filepath = answer['path']
+          answer = Snibbets::Menu.menu(results, title: "Select a file")
+          filepath = answer["path"]
           input = IO.read(filepath)
         end
 
@@ -364,21 +370,21 @@ module Snibbets
         snippets = input.snippets
 
         if snippets.empty?
-          warn 'No snippets found' if Snibbets.options[:interactive]
+          warn "No snippets found" if Snibbets.options[:interactive]
           Process.exit 0
         elsif snippets.length == 1 || !Snibbets.options[:interactive]
-          if Snibbets.options[:output] == 'json'
+          if Snibbets.options[:output] == "json"
             print(snippets.to_json, filepath)
           else
             snippets.each do |snip|
-              header = File.basename(filepath, '.md')
+              header = File.basename(filepath, ".md")
               if $stdout.isatty
                 puts "{bw}#{header}{x}".x
-                puts "{dw}#{'-' * header.length}{x}".x
-                puts ''
+                puts "{dw}#{"-" * header.length}{x}".x
+                puts ""
               end
-              code = snip['code']
-              lang = snip['language']
+              code = snip["code"]
+              lang = snip["language"]
 
               print(code, filepath, lang)
             end
@@ -394,49 +400,48 @@ module Snibbets
     end
 
     def select_snippet(snippets, filepath)
-      snippets.push({ 'title' => 'All snippets', 'code' => '' })
-      answer = Menu.menu(snippets.dup, filename: File.basename(filepath, '.md'), title: 'Select snippet', query: @query)
+      snippets.push({ "title" => "All snippets", "code" => "" })
+      answer = Menu.menu(snippets.dup, filename: File.basename(filepath, ".md"), title: "Select snippet", query: @query)
 
-      if answer['title'] == 'All snippets'
-        snippets.delete_if { |s| s['title'] == 'All snippets' }
-        if Snibbets.options[:output] == 'json'
+      if answer["title"] == "All snippets"
+        snippets.delete_if { |s| s["title"] == "All snippets" }
+        if Snibbets.options[:output] == "json"
           print(snippets.to_json, filepath)
         else
           if $stdout.isatty
-            header = File.basename(filepath, '.md')
+            header = File.basename(filepath, ".md")
             warn "{bw}#{header}{x}".x
-            warn "{dw}#{'=' * header.length}{x}".x
-            warn ''
+            warn "{dw}#{"=" * header.length}{x}".x
+            warn ""
           end
           print_all(snippets, filepath)
         end
-      elsif Snibbets.options[:output] == 'json'
+      elsif Snibbets.options[:output] == "json"
         print(answer.to_json, filepath)
       else
         if $stdout.isatty
-          header = "{bw}#{File.basename(filepath, '.md')}: {c}#{answer['title']}{x}".x
+          header = "{bw}#{File.basename(filepath, ".md")}: {c}#{answer["title"]}{x}".x
           warn header
-          warn '-' * header.length
-          warn ''
+          warn "-" * header.length
+          warn ""
         end
-        code = answer['code']
-        lang = answer['language']
+        code = answer["code"]
+        lang = answer["language"]
         print(code, filepath, lang)
       end
     end
 
     def print_all(snippets, filepath)
-      if Snibbets.options[:output] == 'json'
+      if Snibbets.options[:output] == "json"
         print(snippets.to_json, filepath)
       else
-
         snippets.each do |snippet|
-          lang = snippet['language']
+          lang = snippet["language"]
 
-          puts "{dw}### {xbw}#{snippet['title']} {xdw}### {x}".x
-          puts ''
+          puts "{dw}### {xbw}#{snippet["title"]} {xdw}### {x}".x
+          puts ""
 
-          print(snippet['code'], filepath, lang)
+          print(snippet["code"], filepath, lang)
           puts
         end
       end
@@ -445,9 +450,9 @@ module Snibbets
     def print(output, filepath, syntax = nil)
       if Snibbets.options[:copy]
         OS.copy(Snibbets.options[:all_notes] ? output : output.clean_code)
-        warn 'Copied to clipboard'
+        warn "Copied to clipboard"
       end
-      if Snibbets.options[:highlight] && Snibbets.options[:output] == 'raw'
+      if Snibbets.options[:highlight] && Snibbets.options[:output] == "raw"
         $stdout.puts(Highlight.highlight(output, filepath, syntax))
       else
         $stdout.puts(Snibbets.options[:all_notes] ? output : output.clean_code)
