@@ -1,3 +1,12 @@
+### 2.0.40
+
+2025-01-18 08:05
+
+#### IMPROVED
+
+- Concatenate all search type results instead of stopping after first result
+- Comment out empty blockquote lines
+
 ### 2.0.38
 
 2024-08-21 08:54
