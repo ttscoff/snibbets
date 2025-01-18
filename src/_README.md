@@ -97,39 +97,115 @@ output: raw
 source: "~/Dropbox/Snippets"
 ```
 
+| key                 | type    | default    | description                          |
+| ------------------- | ------- | ---------- | ------------------------------------ |
+| source              | string  | \*required | Path to snippet directory            |
+| all                 | boolean | false      | Always display all snippets          |
+| all_notes           | boolean | false      | Show full content, including notes   |
+| copy                | boolean | false      | always copy output to clipboard      |
+| editor              | string  | $EDITOR    | command or app to use with --edit    |
+| extension           | string  | md         | Snippet extension to search          |
+| highlight           | boolean | true       | Syntax highlight code                |
+| highlight_theme     | string  |            | Highlighter theme to use             |
+| highlighter         | string  |            | Can be skylight or pygments          |
+| include_blockquotes | boolean | false      | include blockquotes in output        |
+| interactive         | boolean | true       | display a menu when multiple options |
+| launchbar           | boolean | false      | Output for LaunchBar                 |
+| menus               | string  | fzf        | menu utility: fzf, gum, console      |
+| name_only           | boolean | false      | Always search by filename            |
+| output              | string  | raw        | Output format json, launchbar, raw   |
+[Configuration Options]
+
 #### Snippet Location
 
 Set the `source` key to the folder where you keep your Markdown snippets. Optionally adjust the `extension` setting if you use an extension other than `md` (e.g. `markdown` or `txt`).
 
 #### Other Options
 
-The `all` setting determines how Snibbets handles files containing multiple snippets. If `all` is true, then it will always display every snippet in the selected file. If false, it will offer a menu and let you choose which snippet to display. You can use `--all` on the command line to just enable this once.
+The `all` setting determines how Snibbets handles files
+containing multiple snippets. If `all` is true, then it will
+always display every snippet in the selected file. If false,
+it will offer a menu and let you choose which snippet to
+display. You can use `--all` on the command line to just
+enable this once.
 
-By default, Snibbets displays only the code from each snippet (and optionally block quotes, see below). If you set `all_notes` to true, then the full content of each snippet containing a code block will be returned, allowing you to see additional notes on the command line. This can be toggled at runtime with `--notes` or `--no-notes`.
+By default, Snibbets displays only the code from each
+snippet (and optionally block quotes, see below). If you set
+`all_notes` to true, then the full content of each snippet
+containing a code block will be returned, allowing you to
+see additional notes on the command line. This can be
+toggled at runtime with `--notes` or `--no-notes`.
 
-The `copy` setting determines whether the output is copied to the clipboard in addition to being displayed on STDOUT. This is the equivalent of running `snibbets QUERY | pbcopy` (macOS) or `snibbets QUERY | xclip` (Linux). This can be enabled for just one run with `--copy` on the command line. Setting it to true in the config will copy to the clipboard every time a snippet is displayed. On Mac this will work automatically, on Windows/Linux you may need to [install `xclip` or `xsel`][xclip].
+The `copy` setting determines whether the output is copied
+to the clipboard in addition to being displayed on STDOUT.
+This is the equivalent of running `snibbets QUERY | pbcopy`
+(macOS) or `snibbets QUERY | xclip` (Linux). This can be
+enabled for just one run with `--copy` on the command line.
+Setting it to true in the config will copy to the clipboard
+every time a snippet is displayed. On Mac this will work
+automatically, on Windows/Linux you may need to [install
+`xclip` or `xsel`][xclip].
 
 [xclip]: https://ostechnix.com/access-clipboard-contents-using-xclip-and-xsel-in-linux/
 
-The `editor` setting is used to open the config file, and to open snippets for editing when using the `--edit` flag. This setting can be any command line utility (`code`, `subl`, `vim`, `nano`, etc.), or on macOS it can be an application name (`BBEdit`, `VS Code`, etc.) or a bundle identifier (`com.sublimetext.4`, `com.microsoft.VSCode`, etc.). If no editor is set, then the file will be opened by whatever the system default is (using `open` on macOS, `start` on Windows, or `xdg-open`on Linux).
+The `editor` setting is used to open the config file, and to
+open snippets for editing when using the `--edit` flag. This
+setting can be any command line utility (`code`, `subl`,
+`vim`, `nano`, etc.), or on macOS it can be an application
+name (`BBEdit`, `VS Code`, etc.) or a bundle identifier
+(`com.sublimetext.4`, `com.microsoft.VSCode`, etc.). If no
+editor is set, then the file will be opened by whatever the
+system default is (using `open` on macOS, `start` on
+Windows, or `xdg-open`on Linux).
 
-The `include_blockquotes` setting determines whether blockquotes are included in the output. By default, Snibbets removes everything other than code blocks (indented or fenced) from the output it displays. But if you want to include a note that you'll see on the command line, you can put it in a block quote by preceding each line you want to preserve with a right angle bracket (`>`).
+The `include_blockquotes` setting determines whether
+blockquotes are included in the output. By default, Snibbets
+removes everything other than code blocks (indented or
+fenced) from the output it displays. But if you want to
+include a note that you'll see on the command line, you can
+put it in a block quote by preceding each line you want to
+preserve with a right angle bracket (`>`).
 
-The `interactive` setting determines whether menus will be displayed. This should generally be true, but if you want silent operation that just displays the best match automatically, set it to false.
+The `interactive` setting determines whether menus will be
+displayed. This should generally be true, but if you want
+silent operation that just displays the best match
+automatically, set it to false.
 
-The `menus` setting will determine what method is used for displaying interactive menus. If this is not set, it will be automatically determined in the order of `fzf`, `gum`, and `console`. You can manually choose to use one of these options over another by making it the `menus` setting.
+The `menus` setting will determine what method is used for
+displaying interactive menus. If this is not set, it will be
+automatically determined in the order of `fzf`, `gum`, and
+`console`. You can manually choose to use one of these
+options over another by making it the `menus` setting.
 
-The `name_only` key will permanently set Snibbets to only search for snippets by their filename rather than examining their contents. You can enable this at runtime using `--name-only` in the command.
+The `name_only` key will permanently set Snibbets to only
+search for snippets by their filename rather than examining
+their contents. You can enable this at runtime using
+`--name-only` in the command.
 
 #### Syntax Highlighting
 
-The `highlight` key turns on syntax highlighting. This requires that either `pygmentize` or `skylighting` is available on your system (both available via package managers like Homebrew). This feature is still in development and results may be mixed. You can also set `highlighter` to `pygments` or `skylight` to force using one highlighter over the other.
+The `highlight` key turns on syntax highlighting. This
+requires that either `pygmentize` or `skylighting` is
+available on your system (both available via package
+managers like Homebrew). This feature is still in
+development and results may be mixed. You can also set
+`highlighter` to `pygments` or `skylight` to force using one
+highlighter over the other.
 
-Highlighting using Skylighting requires that your snippets be named with extra extensions defining the lexer to use. The last extension before `.md` (or whatever your snippet extension is set to) should be the one that the highlighter will recognize as a valid lexer, e.g. `my code.jquery.js.md`.
+Highlighting using Skylighting requires that your snippets
+be named with extra extensions defining the lexer to use.
+The last extension before `.md` (or whatever your snippet
+extension is set to) should be the one that the highlighter
+will recognize as a valid lexer, e.g. `my code.jquery.js.md`.
 
-You can also define languages in your fenced code blocks by putting the lexer name right after the opening fence. When defining multiple snippets in one file that are of different languages, this method will ensure that each one is properly highlighted.
+You can also define languages in your fenced code blocks by
+putting the lexer name right after the opening fence. When
+defining multiple snippets in one file that are of different
+languages, this method will ensure that each one is properly
+highlighted.
 
-If you don't use either extensions or fenced code labels with Skylighting, code won't get highlighted.
+If you don't use either extensions or fenced code labels
+with Skylighting, code won't get highlighted.
 
 To define a snippet as python code, for example:
 
@@ -142,15 +218,33 @@ To define a snippet as python code, for example:
             f = open(filename, 'w')
     ```
 
-You can also define a color scheme with `highlight_theme`. If you're using Pygments, run `pygmentize -L styles` to see available options. If you're using Skylighting, you can reference any theme in the [KDE repository]. Skylighting themes are included in Snibbets and can be referenced by their filename without `.theme`, or you can install your own themes and reference them with a full path. (I recommend `nord` when using Sylighting.)
+You can also define a color scheme with `highlight_theme`.
+If you're using Pygments, run `pygmentize -L styles` to see
+available options. If you're using Skylighting, you can
+reference any theme in the [KDE repository]. Skylighting
+themes are included in Snibbets and can be referenced by
+their filename without `.theme`, or you can install your own
+themes and reference them with a full path. (I recommend
+`nord` when using Sylighting.)
 
 [KDE repository]: https://github.com/KDE/syntax-highlighting/tree/master/data/themes
 
-You can turn highlighting on or off for a single run using `--highlight` or `--no-highlight`. Syntax highlighting definitely affects copyable output, so it's automatically disabled when piping/redirecting output. When using `--copy`, the code sent to the clipboard is not highlighted.
+You can turn highlighting on or off for a single run using
+`--highlight` or `--no-highlight`. Syntax highlighting
+definitely affects copyable output, so it's automatically
+disabled when piping/redirecting output. When using
+`--copy`, the code sent to the clipboard is not highlighted.
 
 ##### Installing a Syntax Highlighter
 
-Snibbet's implementation of Skylighting has limited but better-looking themes, and has some lexers that Pygments lacks. However, Pygments has _more_ lexers and a wider array of themes. It also can determine the target syntax automatically better than Skylighting (which requires the syntax to be specified -- it's pulled from the extensions of your snippets), which is why Pygments is the default if it's installed and you don't configure it otherwise.
+Snibbet's implementation of Skylighting has limited but
+better-looking themes, and has some lexers that Pygments
+lacks. However, Pygments has _more_ lexers and a wider array
+of themes. It also can determine the target syntax
+automatically better than Skylighting (which requires the
+syntax to be specified -- it's pulled from the extensions of
+your snippets), which is why Pygments is the default if it's
+installed and you don't configure it otherwise.
 
 - Install [Skylighting] with [Homebrew] (`brew install skylighting`) or [apt-get].
 - Install [Pygments] using [Homebrew] (`brew install pygments`) or `pip install pygments`.
@@ -165,37 +259,80 @@ Snibbet's implementation of Skylighting has limited but better-looking themes, a
 @cli(bundle exec bin/snibbets -h)
 ```
 
-If your Snippets folder is set in the config, simply running `snibbets [search query]` will perform the search and output the code blocks, presenting a menu if more than one match is found or the target file contains more than one snippet. Selected contents are output raw to STDOUT.
+If your Snippets folder is set in the config, simply running
+`snibbets [search query]` will perform the search and output
+the code blocks, presenting a menu if more than one match is
+found or the target file contains more than one snippet.
+Selected contents are output raw to STDOUT.
 
 > If you have fzf or gum installed, snibbets will use those for menus, providing fuzzy filtering of options.
 
 #### JSON output
 
-An undocumented output option is `-o json`, which will output all of the matches and their code blocks as a JSON string that can be incorporated into other scripts. It's similar to the `-o launchbar` option, but doesn't contain the extra keys required for the LaunchBar action.
+An undocumented output option is `-o json`, which will
+output all of the matches and their code blocks as a JSON
+string that can be incorporated into other scripts. It's
+similar to the `-o launchbar` option, but doesn't contain
+the extra keys required for the LaunchBar action.
 
 #### Open snippets in your editor
 
-Use the `--edit` flag on any search to open the found snippet file in your editor. Configure your default editor in the config file. `snibbets configure` will open that, but if you don't have an editor set, it might have strange results. To edit manually, open `~/.config/snibbets/snibbets.yml` in your text editor of choice.
+Use the `--edit` flag on any search to open the found
+snippet file in your editor. Configure your default editor
+in the config file. `snibbets configure` will open that, but
+if you don't have an editor set, it might have strange
+results. To edit manually, open
+`~/.config/snibbets/snibbets.yml` in your text editor of
+choice.
 
 #### Creating new snippets
 
 ##### From clipboard
 
-I do most of my snippet editing in [nvUltra], but sometimes I have a function in my clipboard that just needs quick saving and there are so few moving parts to creating a snippet that it just feels like they could be automated/simplified. That's why I added the `--paste` flag. If you have a code snippet in your clipboard, you can just run `snibbets --paste` (or just `-p`) and you'll get a prompt asking you to describe the snippet (used for filename) and one asking what language(s) are represented.
+I do most of my snippet editing in [nvUltra], but sometimes
+I have a function in my clipboard that just needs quick
+saving and there are so few moving parts to creating a
+snippet that it just feels like they could be
+automated/simplified. That's why I added the `--paste` flag.
+If you have a code snippet in your clipboard, you can just
+run `snibbets --paste` (or just `-p`) and you'll get a
+prompt asking you to describe the snippet (used for
+filename) and one asking what language(s) are represented.
 
-You can input the languages as names, e.g. `rust`, `typescript`, or `scala`, or you can just add file extensions that represent the language. If I say `ts` to that prompt, it will generate an extension of `.ts.md` and then add a metadata tag of `typescript` to the file. The code from the clipboard goes into a fenced code block in the document. You can always go add notes to it later, but it's a great way to save snippets as you come across them (or solutions you figure out after a week of banging your head).
+You can input the languages as names, e.g. `rust`,
+`typescript`, or `scala`, or you can just add file
+extensions that represent the language. If I say `ts` to
+that prompt, it will generate an extension of `.ts.md` and
+then add a metadata tag of `typescript` to the file. The
+code from the clipboard goes into a fenced code block in the
+document. You can always go add notes to it later, but it's
+a great way to save snippets as you come across them (or
+solutions you figure out after a week of banging your head).
 
-This command requires that a clipboard utility be available. On macOS, you have `pbpaste` by default and don't need to do anything. On Windows and Linux, you'll need to [install either `xclip` or `xsel`][xclip].
+This command requires that a clipboard utility be available.
+On macOS, you have `pbpaste` by default and don't need to do
+anything. On Windows and Linux, you'll need to
+[install either `xclip` or `xsel`][xclip].
 
 [nvUltra]: https://nvultra.com "nvUltra for Mac"
 
 ##### With editor
 
-You can also create new snippets by opening a skeleton file in your editor with `--edit-new`. This will prompt for a title and languages, create the new file, and open it in your editor (or in nvUltra with the `--nvultra` flag). If you use `--edit-new-titled TITLE`, the new snippet will get a filename from `TITLE` and languages will be determined from any extension added to the title, or prompted for if none are found.
+You can also create new snippets by opening a skeleton file
+in your editor with `--edit-new`. This will prompt for a
+title and languages, create the new file, and open it in
+your editor (or in nvUltra with the `--nvultra` flag). If
+you use `--edit-new-titled TITLE`, the new snippet will get
+a filename from `TITLE` and languages will be determined
+from any extension added to the title, or prompted for if
+none are found.
 
 #### Saving Settings When Running
 
-Any time you specify things like a source folder with the `--source` flag, or turn on highlighting or name-only search, you can add the flag `--save` to write those to your config and make them the default options.
+Any time you specify things like a source folder with the
+`--source` flag, or turn on highlighting or name-only
+search, you can add the flag `--save` to write those to your
+config and make them the default options.
 
 ## LaunchBar Action
 
@@ -203,9 +340,12 @@ _I'm currently reworking the LaunchBar action, and it doesn't function very well
 
 <!-- ### Installation
 
-The LaunchBar action can be installed simply by double clicking the `.lbaction` file in Finder. The CLI is not required for the LaunchBar action to function.
+The LaunchBar action can be installed simply by double clicking the
+`.lbaction` file in Finder. The CLI is not required for the LaunchBar
+action to function.
 
-Once installed, run the action (type `snib` and hit return on the result) to select your Snippets folder.
+Once installed, run the action (type `snib` and hit return on the result) to
+select your Snippets folder.
 
 ### Usage
 

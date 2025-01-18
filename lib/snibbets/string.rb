@@ -4,7 +4,7 @@ module Snibbets
   # String helpers
   class ::String
     def escape_filename
-      gsub(%r{/}, ":")
+      gsub(%r{/}, ':')
     end
 
     def remove_spotlight_tags
@@ -13,7 +13,7 @@ module Snibbets
         word =~ /^\w+:/
       end
 
-      words.join(" ").strip
+      words.join(' ').strip
     end
 
     def remove_spotlight_tags!
@@ -42,7 +42,7 @@ module Snibbets
 
     # Are there multiple snippets (indicated by ATX headers)
     def multiple?
-      gsub(/(`{3,}).*?\n\1/m, "").scan(/^#+/).length > 1
+      gsub(/(`{3,}).*?\n\1/m, '').scan(/^#+/).length > 1
     end
 
     # Is the snippet in this block fenced?
@@ -70,7 +70,7 @@ module Snibbets
       rx = /(?mi)^(?<fence>`{3,})(?<lang> *\S+)? *\n(?<code>[\s\S]*?)\n\k<fence> *(?=\n|\Z)/
       matches = []
       scan(rx) { matches << Regexp.last_match }
-      matches.each_with_object([]) { |m, fenced| fenced.push({ code: m["code"], lang: m["lang"] }) }
+      matches.each_with_object([]) { |m, fenced| fenced.push({ code: m['code'], lang: m['lang'] }) }
     end
 
     def indented?
@@ -78,7 +78,7 @@ module Snibbets
     end
 
     def rx
-      ".*#{gsub(/tags?:\S+/, "").gsub(/\s+/, ".*")}.*"
+      ".*#{gsub(/tags?:\S+/, '').gsub(/\s+/, '.*')}.*"
     end
 
     def tags
@@ -88,6 +88,7 @@ module Snibbets
     def content_tags
       tags_line = match(/tags:(.*)/)
       return [] if tags_line.nil?
+
       tags_line[1].split(/[, ]+/).map(&:strip).delete_if(&:empty?)
     end
 
@@ -133,7 +134,7 @@ module Snibbets
 
       return self if indent.nil?
 
-      code.map! { |line| line.sub(/(?mi)^#{indent[1]}/, "") }.join("\n")
+      code.map! { |line| line.sub(/(?mi)^#{indent[1]}/, '') }.join("\n")
     end
 
     def replace_blocks
@@ -144,7 +145,7 @@ module Snibbets
       if Snibbets.options[:include_blockquotes]
         sans_blocks = sans_blocks.gsub(/(?mi)(^(>.*?)(\n|$))+/) do
           counter += 1
-          code_blocks["block#{counter}"] = Regexp.last_match(0).gsub(/^> *(?=\S)/, "# ")
+          code_blocks["block#{counter}"] = Regexp.last_match(0).gsub(/^> */, '# ')
           "<block#{counter}>\n"
         end
       end
@@ -172,7 +173,7 @@ module Snibbets
       lang = nil
       if block =~ /<lang:(.*?)>/
         lang = Regexp.last_match(1)
-        block = block.gsub(/<lang:.*?>\n+/, "").strip_empty
+        block = block.gsub(/<lang:.*?>\n+/, '').strip_empty
       end
 
       [lang, block]
@@ -189,10 +190,10 @@ module Snibbets
         next if lines.blocks.zero? && !notes
 
         title = if lines.count > 1 && lines[0] !~ /<block\d+>/
-            lines.shift.strip.sub(/[.:]$/, "")
-          else
-            "Default snippet"
-          end
+                  lines.shift.strip.sub(/[.:]$/, '')
+                else
+                  'Default snippet'
+                end
 
         block = lines.join("\n").gsub(/<(block\d+)>/) do
           code = code_blocks[Regexp.last_match(1)].strip_empty
@@ -207,9 +208,9 @@ module Snibbets
         # code = code.clean_code unless notes || code.fences.count > 1
 
         sections << {
-          "title" => title,
-          "code" => code.strip_empty,
-          "language" => lang,
+          'title' => title,
+          'code' => code.strip_empty,
+          'language' => lang
         }
       end
 
@@ -234,15 +235,15 @@ module Snibbets
           if part =~ /<block\d+>/
             lines = part.split(/\n/)
             title = lines.shift
-            out = [title.gsub(/(^#+|#+$)/, "").strip]
+            out = [title.gsub(/(^#+|#+$)/, '').strip]
             out.concat(lines.each_with_object([]) do |line, arr|
-              arr << line.gsub(/(^#+|#+$)/, "").strip if line =~ /^#/ || line =~ /<block\d+>/
+              arr << line.gsub(/(^#+|#+$)/, '').strip if line =~ /^#/ || line =~ /<block\d+>/
             end)
             out.join("\n")
           else
             lines = part.split(/\n/)
             title = lines.shift
-            out = title.nil? ? [] : [title.gsub(/(^#+|#+$)/, "").strip]
+            out = title.nil? ? [] : [title.gsub(/(^#+|#+$)/, '').strip]
             out.concat(lines)
             out.join("\n")
           end
@@ -253,4 +254,3 @@ module Snibbets
     end
   end
 end
-

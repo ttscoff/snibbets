@@ -95,6 +95,27 @@ output: raw
 source: "~/Dropbox/Snippets"
 ```
 
+###### Configuration Options
+
+| key                 | type    | default    | description                          |
+| ------------------- | ------- | ---------- | ------------------------------------ |
+| source              | string  | \*required | Path to snippet directory            |
+| all                 | boolean | false      | Always display all snippets          |
+| all_notes           | boolean | false      | Show full content, including notes   |
+| copy                | boolean | false      | always copy output to clipboard      |
+| editor              | string  | $EDITOR    | command or app to use with --edit    |
+| extension           | string  | md         | Snippet extension to search          |
+| highlight           | boolean | true       | Syntax highlight code                |
+| highlight_theme     | string  |            | Highlighter theme to use             |
+| highlighter         | string  |            | Can be skylight or pygments          |
+| include_blockquotes | boolean | false      | include blockquotes in output        |
+| interactive         | boolean | true       | display a menu when multiple options |
+| launchbar           | boolean | false      | Output for LaunchBar                 |
+| menus               | string  | fzf        | menu utility: fzf, gum, console      |
+| name_only           | boolean | false      | Always search by filename            |
+| output              | string  | raw        | Output format json, launchbar, raw   |
+
+
 #### Snippet Location
 
 Set the `source` key to the folder where you keep your Markdown snippets. Optionally adjust the `extension` setting if you use an extension other than `md` (e.g. `markdown` or `txt`).
