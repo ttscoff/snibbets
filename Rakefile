@@ -11,7 +11,7 @@ Rake::RDocTask.new do |rd|
 end
 
 YARD::Rake::YardocTask.new do |t|
- t.files = ['lib/na/*.rb']
+ t.files = ['lib/snibbets/**/*.rb']
  t.options = ['--markup-provider=redcarpet', '--markup=markdown', '--no-private', '-p', 'yard_templates']
  # t.stats_options = ['--list-undoc']
 end
