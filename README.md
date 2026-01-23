@@ -107,7 +107,7 @@ source: "~/Dropbox/Snippets"
 | extension           | string  | md         | Snippet extension to search          |
 | highlight           | boolean | true       | Syntax highlight code                |
 | highlight_theme     | string  |            | Highlighter theme to use             |
-| highlighter         | string  |            | Can be skylight or pygments          |
+| highlighter         | string  |            | Can be shiki, skylight, or pygments  |
 | include_blockquotes | boolean | false      | include blockquotes in output        |
 | interactive         | boolean | true       | display a menu when multiple options |
 | launchbar           | boolean | false      | Output for LaunchBar                 |
@@ -185,11 +185,11 @@ their contents. You can enable this at runtime using
 #### Syntax Highlighting
 
 The `highlight` key turns on syntax highlighting. This
-requires that either `pygmentize` or `skylighting` is
-available on your system (both available via package
+requires that either `shiki`, `pygmentize`, or `skylighting` is
+available on your system (all available via package
 managers like Homebrew). This feature is still in
 development and results may be mixed. You can also set
-`highlighter` to `pygments` or `skylight` to force using one
+`highlighter` to `shiki`, `pygments`, or `skylight` to force using one
 highlighter over the other.
 
 Highlighting using Skylighting requires that your snippets
@@ -225,7 +225,9 @@ reference any theme in the [KDE repository]. Skylighting
 themes are included in Snibbets and can be referenced by
 their filename without `.theme`, or you can install your own
 themes and reference them with a full path. (I recommend
-`nord` when using Sylighting.)
+`nord` when using Skylighting.) If you're using Shiki, the
+default theme is `vitesse-dark`, but you can specify any
+theme supported by Shiki via the `highlight_theme` option.
 
 [KDE repository]: https://github.com/KDE/syntax-highlighting/tree/master/data/themes
 
@@ -244,11 +246,15 @@ of themes. It also can determine the target syntax
 automatically better than Skylighting (which requires the
 syntax to be specified -- it's pulled from the extensions of
 your snippets), which is why Pygments is the default if it's
-installed and you don't configure it otherwise.
+installed and you don't configure it otherwise. Shiki
+provides high-quality syntax highlighting with excellent
+theme support and can auto-detect languages from filenames.
 
+- Install [Shiki] with [Homebrew] (`brew install shiki`) or via npm (`npm install -g shiki`).
 - Install [Skylighting] with [Homebrew] (`brew install skylighting`) or [apt-get].
-- Install [Pygments] using [Homebrew] (`brew install pygments`) or `pip install pygments`.
+- Install [Pygments] with [Homebrew] (`brew install pygments`) or `pip install pygments`.
 
+[Shiki]: https://github.com/shikijs/shiki
 [Skylighting]: https://github.com/jgm/skylighting
 [apt-get]: https://installati.one/install-skylighting-ubuntu-22-04/
 [Pygments]: https://pygments.org/
@@ -272,7 +278,7 @@ Usage: snibbets [options] query
     -s, --source FOLDER              Snippets folder to search
         --configure                  Open the configuration file in your default editor
         --[no-]blockquotes           Include block quotes in output
-        --[no-]highlight             Use pygments or skylighting to syntax highlight (if installed)
+        --[no-]highlight             Use shiki, pygments, or skylighting to syntax highlight (if installed)
         --nvultra                    Open the result in nvUltra
         --save                       Save the current command line options to the YAML configuration
     -h, --help                       Display this screen
