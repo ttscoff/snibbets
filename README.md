@@ -256,7 +256,7 @@ installed and you don't configure it otherwise.
 ### Usage
 
 ```
-Snibbets v2.0.40
+Snibbets v2.0.41
 
 Usage: snibbets [options] query
     -a, --all                        If a file contains multiple snippets, output all of them (no menu)

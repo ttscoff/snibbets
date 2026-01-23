@@ -27,7 +27,7 @@ You no longer need to manually bump the version, it will be incremented when thi
 changelog -u
 ```
 
-@include(project:Update GitHub README)
+@include(GitHub:Update GitHub README)
 
 ```run Update README
 #!/bin/bash
