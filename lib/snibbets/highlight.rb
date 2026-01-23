@@ -40,6 +40,29 @@ module Snibbets
         run_command_with_input("#{executable} #{theme}--syntax #{syntax}", input: code)
       end
 
+      def highlight_shiki(executable, code, syntax, theme)
+        theme ||= 'vitesse-dark'
+        tempfile = Tempfile.new(['snibbets', '.tmp'])
+        begin
+          tempfile.write(code)
+          tempfile.close
+
+          command_parts = [executable, '--format', 'ansi']
+          command_parts << '--theme' << theme unless theme.nil? || theme.empty?
+          command_parts << '--lang' << syntax unless syntax.nil? || syntax.empty?
+          command_parts << tempfile.path
+
+          stdout, _stderr, status = Open3.capture3(*command_parts)
+          if status.success?
+            stdout
+          else
+            code
+          end
+        ensure
+          tempfile&.unlink
+        end
+      end
+
       def highlight_fences(code, filename, syntax)
         content = code.dup
 
@@ -68,8 +91,12 @@ module Snibbets
 
         skylight = TTY::Which.which('skylighting')
         pygments = TTY::Which.which('pygmentize')
+        shiki = TTY::Which.which('shiki')
 
-        if Snibbets.options[:highlighter] =~ /^s/ && !skylight.nil?
+        if Snibbets.options[:highlighter] =~ /^shiki/ && !shiki.nil?
+          shiki_theme = Snibbets.options[:highlight_theme] || 'vitesse-dark'
+          return highlight_shiki(shiki, code, syntax, shiki_theme)
+        elsif Snibbets.options[:highlighter] =~ /^s/ && !skylight.nil?
           if !Lexers.skylight_lexer?(syntax) && !pygments.nil?
             return highlight_pygments(pygments, code, syntax, 'monokai')
           else
@@ -81,6 +108,9 @@ module Snibbets
           return highlight_skylight(skylight, code, syntax, theme)
         elsif !pygments.nil?
           return highlight_pygments(pygments, code, syntax, theme)
+        elsif !shiki.nil?
+          shiki_theme = Snibbets.options[:highlight_theme] || 'vitesse-dark'
+          return highlight_shiki(shiki, code, syntax, shiki_theme)
         end
 
         code

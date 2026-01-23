@@ -61,9 +61,9 @@ module Snibbets
 
         return TTY::Which.which('subl') if TTY::Which.exist?('subl') && @test_editor == 'subl'
 
-        return TTY::Which.which('nano') if TTY::Which.exist?('nano') && @test_editor == 'nano'
-
         return TTY::Which.which('vim') if TTY::Which.exist?('vim') && @test_editor == 'vim'
+
+        return TTY::Which.which('nano') if TTY::Which.exist?('nano') && @test_editor == 'nano'
 
         'TextEdit'
       end
